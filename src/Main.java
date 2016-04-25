@@ -1,5 +1,6 @@
 import java.io.Console;
 import java.io.IOException;
+import java.util.Random;
 
 import dpll.v1.ConstructeurClause;
 import dpll.v2.ConstructeurClauseV2;
@@ -10,6 +11,7 @@ public class Main {
 
 	
 	public static void main(String[] args) throws IOException {
+		
 		
 		
 		System.out.println("1- Méthode 1 \n2-Méthode 2 \n3-Méthode 3");

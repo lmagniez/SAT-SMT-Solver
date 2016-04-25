@@ -1,10 +1,12 @@
+package dpll.v2;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
 
-public class ConstructeurClause {
+public class ConstructeurClauseV2 {
 	
 	private int[][] clauses;
 	private int nbClause;
@@ -12,7 +14,7 @@ public class ConstructeurClause {
 	private Vector<int[]> solutions = new Vector<int[]>();
 	
 	
-	public ConstructeurClause()
+	public ConstructeurClauseV2(String nomFichier)
 	{
 		BufferedReader br = null;
 		
@@ -21,7 +23,7 @@ public class ConstructeurClause {
 			String sCurrentLine;
 			int currentClause=0;
 
-			br = new BufferedReader(new FileReader("queen.cnf"));
+			br = new BufferedReader(new FileReader(nomFichier));
 
 			while ((sCurrentLine = br.readLine()) != null) {
 				
@@ -119,7 +121,7 @@ public class ConstructeurClause {
 					nbInterpretation++;
 					
 					//unitPropagation	
-					cls=ConstructeurClause.unitPropagation(cls[i][0],cls);
+					cls=ConstructeurClauseV2.unitPropagation(cls[i][0],cls);
 					if(cls==null) return null; //if there is empty clause/conflict
 					found=true;
 					break;
@@ -406,7 +408,7 @@ public class ConstructeurClause {
 	}
 	
 	public static void main(String[] args) {
-		ConstructeurClause c = new ConstructeurClause();
+		ConstructeurClauseV2 c = new ConstructeurClauseV2("queen.cnf");
 		
 			
 		

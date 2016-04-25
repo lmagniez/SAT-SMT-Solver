@@ -1,3 +1,5 @@
+package dpll.v1;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,7 +14,7 @@ public class ConstructeurClause {
 	private Vector<int[]> solutions = new Vector<int[]>();
 	
 	
-	public ConstructeurClause()
+	public ConstructeurClause(String nomFichier)
 	{
 		BufferedReader br = null;
 		
@@ -21,7 +23,7 @@ public class ConstructeurClause {
 			String sCurrentLine;
 			int currentClause=0;
 
-			br = new BufferedReader(new FileReader("queen.cnf"));
+			br = new BufferedReader(new FileReader(nomFichier));
 
 			while ((sCurrentLine = br.readLine()) != null) {
 				
@@ -420,19 +422,19 @@ public class ConstructeurClause {
 			System.out.println("");
 		}
 	}
-	
-	public static void main(String[] args) {
-		ConstructeurClause c = new ConstructeurClause();
-		
-		for(int i=0; i<c.solutions.size();i++)
-		{
-			int[] soluce = c.solutions.get(i);
-			for(int j=0; j<soluce.length;j++)
-				System.out.print(soluce[j]+" ");
-			System.out.println();
-		}		
-		
+
+
+	public Vector<int[]> getSolutions() {
+		return solutions;
 	}
+
+
+	public void setSolutions(Vector<int[]> solutions) {
+		this.solutions = solutions;
+	}
+	
+	
+	
 	
 	
 }

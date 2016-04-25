@@ -1,10 +1,12 @@
+package dpll.v3;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
 
-public class ConstructeurClause {
+public class ConstructeurClauseV3 {
 	
 	private int[][] clauses;
 	private int nbClause;
@@ -13,7 +15,7 @@ public class ConstructeurClause {
 	private Vector<int[]> solutions = new Vector<int[]>();
 	
 	
-	public ConstructeurClause()
+	public ConstructeurClauseV3(String nomFichier)
 	{
 		BufferedReader br = null;
 		
@@ -22,7 +24,7 @@ public class ConstructeurClause {
 			String sCurrentLine;
 			int currentClause=0;
 
-			br = new BufferedReader(new FileReader("queen.cnf"));
+			br = new BufferedReader(new FileReader(nomFichier));
 
 			while ((sCurrentLine = br.readLine()) != null) {
 				
@@ -125,7 +127,7 @@ public class ConstructeurClause {
 		{
 			//affichetab(interpretation);
 			if(interpretation[i]!=0)
-				cls=ConstructeurClause.unitPropagation(interpretation[i],cls);
+				cls=ConstructeurClauseV3.unitPropagation(interpretation[i],cls);
 			if(cls==null)return null;
 		}
 		
@@ -189,7 +191,7 @@ public class ConstructeurClause {
 					//affichetab(interpretation);
 					//System.out.println("UNIT PROPAGATION OF: "+cls[i][0]);
 					int elt = cls[i][0];
-					cls=ConstructeurClause.unitPropagation(cls[i][0],cls);
+					cls=ConstructeurClauseV3.unitPropagation(cls[i][0],cls);
 					if(cls==null) return null; //if there is empty clause/conflict
 					
 					//add the new interpretation
@@ -701,7 +703,7 @@ public class ConstructeurClause {
 	}
 	
 	public static void main(String[] args) {
-		ConstructeurClause c = new ConstructeurClause();
+		ConstructeurClauseV3 c = new ConstructeurClauseV3("queen.cnf");
 		
 			
 		

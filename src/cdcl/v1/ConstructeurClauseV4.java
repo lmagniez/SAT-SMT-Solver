@@ -1,4 +1,4 @@
-package dpll.v3;
+package cdcl.v1;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Vector;
 
 
-public class ConstructeurClauseV3 {
+public class ConstructeurClauseV4 {
 	
 	private int[][] clauses;
 	private int nbClause;
@@ -15,7 +15,7 @@ public class ConstructeurClauseV3 {
 	private Vector<int[]> solutions = new Vector<int[]>();
 	
 	
-	public ConstructeurClauseV3(String nomFichier)
+	public ConstructeurClauseV4(String nomFichier)
 	{
 		BufferedReader br = null;
 		
@@ -67,14 +67,14 @@ public class ConstructeurClauseV3 {
 						int elt=Integer.parseInt(line[i]);
 						elt=Math.abs(elt);
 						
-						//ajout dans listeVariable si existe pas
+						//add into listeVariable if doesn't exist yet
 						for(int j=0; j<nbVariable; j++)
 						{
-							//si trouve équivalent
+							//if find the equivalent
 							if(listeVariable[j]==elt)
 								break;
 							
-							//si arrive au bout, ajoute
+							//doesn't find equivalent, then add
 							if(listeVariable[j]==0)
 							{
 								listeVariable[j]=elt;
@@ -100,11 +100,14 @@ public class ConstructeurClauseV3 {
 			}
 		}
 		
+		Variable[] listeV= Variable.createVariable(listeVariable);
+		
+		
 		//affiche(clauses);
 		System.out.println(clauses.length);
 		
 		//System.out.println("result: "+DPLL(clauses, partialI, 0));
-		int[] res = DPLL(clauses, this.nbVariable, this.listeVariable);
+		int[] res = CDCL(clauses, this.nbVariable, listeV);
 		
 		System.out.println("\n\n\nRESULTAT");
 		for(int i=0; i<res.length; i++)
@@ -114,20 +117,20 @@ public class ConstructeurClauseV3 {
 	}
 	
 	
-	public static int[] unitResolution(int[][] cls, int[][] originalCls, Graph g, int[] interpretation)
+	public static int[] unitResolution(int[][] cls, int[][] originalCls, Variable[] v, int[] interpretation)
 	{
 		
 		int cut = 1;
 		
 		
 		boolean found;
-		//search for unit clauses (clause with only one literal)
 		
+		//search for unit clauses (clause with only one literal)
 		for(int i=0; i<interpretation.length; i++)
 		{
 			//affichetab(interpretation);
 			if(interpretation[i]!=0)
-				cls=ConstructeurClauseV3.unitPropagation(interpretation[i],cls);
+				cls=ConstructeurClauseV4.unitPropagation(interpretation[i],cls);
 			if(cls==null)return null;
 		}
 		
@@ -135,6 +138,9 @@ public class ConstructeurClauseV3 {
 		do
 		{
 			found=false;
+			
+			Vector<Integer> unitList = new Vector<Integer>(); 
+			
 			//look in all the clauses
 			for(int i=0; i<cls.length; i++)
 			{
@@ -144,71 +150,84 @@ public class ConstructeurClauseV3 {
 				{
 					//System.out.println("THERE IS A UNIT CLAUSE");
 					
-					//test if already exist
-					int src=cls[i][0];
 					
+					int elt=cls[i][0];
 					boolean ajout=true;
 					
 					for(int j=0;j<interpretation.length;j++)
 					{
-						if(interpretation[j]==src)
+						if(interpretation[j]==elt)
 						{
 							ajout=false;
 							break;
 						}
 					}
 					
-					
-					//add to the graph 
+					//does not exist yet,
+					//add to the graph (and to unitList)
 					if(ajout)
 					{
-						int actualLvl=g.getLevel();
-						int[] dst= new int[originalCls[i].length-2];
 						
-						//copy dst 
+						int value;
+						if(elt<0) value=0;					
+						else value=1;
+						
+						
+						int actualLvl=Variable.actualLevel;
+						Variable[] antecedants= new Variable[originalCls[i].length-2];
+						
+						//copy dst (from original clauses)
 						int cpt=0;
 						for(int j=0; j<originalCls[i].length-1; j++)
 						{	
 							//System.out.println(originalCls[i][j]+" "+src);
-							if(originalCls[i][j]!=src)
+							if(originalCls[i][j]!=elt)
 							{
-								dst[cpt]=originalCls[i][j];	
+								antecedants[cpt]=Variable.find(originalCls[i][j], v);	
 								cpt++;
-							}	
+							}
 						}
 						
-						Node n=new Node(actualLvl, src, cut, dst);
-						cut++;//increment each time find cls
+						Variable var = Variable.find(cls[i][0], v);
+						var.addToGraph(value, Variable.actualLevel, cut, i, antecedants);
 						
-						
-						g.addNode(n);
-						
+						unitList.add(i);
 						
 						
 					}
 					
-					//unitPropagation	
-					//affichetab(interpretation);
-					//System.out.println("UNIT PROPAGATION OF: "+cls[i][0]);
-					int elt = cls[i][0];
-					cls=ConstructeurClauseV3.unitPropagation(cls[i][0],cls);
+					
+					
+				}
+			}//for
+			
+			//from here, we have all the unit clauses
+			//unit propagation
+			if(unitList.size()!=0)
+			{
+				for(int i=0; i<unitList.size(); i++)
+				{
+					int elt=cls[i][0];
+					cls=ConstructeurClauseV4.unitPropagation(elt,cls);
 					if(cls==null) return null; //if there is empty clause/conflict
 					
 					//add the new interpretation
-					System.out.println("ajout nouvelles interpretations");
 					int[] newInterpretation= new int[interpretation.length+1];
 					for(int j=0; j<interpretation.length; j++)
 						newInterpretation[j]=interpretation[j];
 					newInterpretation[interpretation.length]=elt;
 					interpretation=newInterpretation;
-					
-					affichetab(interpretation);
-					
-					found=true;
-					break;
-					
 				}
+				found=true;
+				cut++;//increment each time find cls
+				
 			}
+			
+			
+			affichetab(interpretation);
+			
+			
+			break;
 			
 		}while(found);
 		
@@ -358,7 +377,7 @@ public class ConstructeurClauseV3 {
 	
 	//partialInterpretation -> the variable we choosed (T/F) Empty at first
 	
-	public int[] DPLL(int[][] cls, int nbVariable, int[] listeVariable)
+	public int[] CDCL(int[][] cls, int nbVariable, Variable[] listeVariable)
 	{
 		Graph g = new Graph();
 		int[] interpretation={};
@@ -633,6 +652,34 @@ public class ConstructeurClauseV3 {
 		return newTab;
 	}
 	
+	
+	//check if every clauses has a size of 2 or less ("literal" "0")
+	//also check that there are no literal and -literal in the expression
+	public boolean isSatisfiable(int[][] cls)
+	{
+		for(int i=0; i<cls.length;i++)
+		{
+			if(cls[i].length>2)
+			{
+				return false;
+			}
+			
+		}
+		
+		//check if no litteral and -litteral
+		//from here, we're sure there is at most 1 literal in the clauses
+		for(int i=0; i<cls.length;i++)
+		{
+			for(int j=i;j<cls[i].length;j++)
+			{
+				if(cls[i][0]==-cls[j][0])
+					return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	//create an array with only 0 in it
 	public int[] createPartialInterpretation(int[][] cls)
 	{
@@ -675,7 +722,7 @@ public class ConstructeurClauseV3 {
 	}
 	
 	public static void main(String[] args) {
-		ConstructeurClauseV3 c = new ConstructeurClauseV3("queen.cnf");
+		ConstructeurClauseV4 c = new ConstructeurClauseV4("queen.cnf");
 		
 			
 		

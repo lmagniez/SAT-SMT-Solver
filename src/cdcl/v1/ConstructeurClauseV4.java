@@ -48,9 +48,10 @@ public class ConstructeurClauseV4 {
 					nbVariable=Integer.parseInt(line[2]);
 					nbClause=Integer.parseInt(line[3]);
 					
-					listeVariable=new int[nbVariable];
+					listeVariable=new int[nbVariable+1];
 					for(int i=0; i<nbVariable; i++)
 						listeVariable[i]=0;
+					listeVariable[nbVariable]=-1;//conflict variable
 					
 					//the first line is the nb of variables
 					clauses=new int[nbClause+1][];
@@ -114,27 +115,76 @@ public class ConstructeurClauseV4 {
 			System.out.println(res[i]);
 		System.out.println("///");
 		
+		
+		
 	}
 	
 	
-	public static int[] unitResolution(int[][] cls, int[][] originalCls, Variable[] v, int[] interpretation)
+	public static boolean unitResolution(int[][] cls, int[][] originalCls, Variable[] v)
 	{
 		
 		int cut = 1;
-		
+		int[][] res=null;
 		
 		boolean found;
 		
-		//search for unit clauses (clause with only one literal)
-		for(int i=0; i<interpretation.length; i++)
+		
+		//update cls with interpretation
+		for(int i=0; i<v.length; i++)
 		{
-			//affichetab(interpretation);
-			if(interpretation[i]!=0)
-				cls=ConstructeurClauseV4.unitPropagation(interpretation[i],cls);
-			if(cls==null)return null;
+			if(v[i].getValue()!=-1)
+			{
+				int toPropagate=v[i].getVariable();
+				if(v[i].getValue()==0)
+					toPropagate*=-1;
+				
+			
+				
+				//affichetab(interpretation);
+				res=ConstructeurClauseV4.unitPropagation(toPropagate,cls);
+				
+				//conflict
+				if(res.length==1&&res[0].length==1)
+				{
+					int cpt=0;
+					int locationConflict = res[0][0];
+					Variable[] antecedants= new Variable[originalCls[locationConflict].length-1]; 
+					//create the antecedants for k
+					for(int j=0; j<originalCls[locationConflict].length-1; j++)
+					{	
+						
+						//System.out.println(originalCls[locationConflict].length-1);
+						System.out.println("**");
+						System.out.println(originalCls.length);
+						System.out.println(cls.length);
+						System.out.println(locationConflict);
+						System.out.println(j);
+						System.out.println(i);
+						System.out.println(cpt);
+						if(originalCls[locationConflict][j]!=cls[i][0])
+						{
+							antecedants[cpt]=Variable.find(originalCls[locationConflict][j], v);	
+							cpt++;
+						}
+					}
+					
+					//ajoute k conflit
+					v[v.length-1].addToGraph(1, Variable.actualLevel, cut, locationConflict, antecedants);
+					
+					System.out.println("empty clause");
+					return false; //if there is empty clause/conflict
+				}
+			}
 		}
 		
-			
+		//no conflict
+		if(res!=null)
+			cls=res;
+		
+		System.out.println("NEW AJOUT");
+		Variable.afficheDecision(v);
+		
+		//search for unit clauses (clause with only one literal)	
 		do
 		{
 			found=false;
@@ -148,15 +198,13 @@ public class ConstructeurClauseV4 {
 				//if there is a unit clause
 				if(cls[i].length==2)
 				{
-					//System.out.println("THERE IS A UNIT CLAUSE");
-					
 					
 					int elt=cls[i][0];
 					boolean ajout=true;
 					
-					for(int j=0;j<interpretation.length;j++)
+					for(int j=0;j<v.length;j++)
 					{
-						if(interpretation[j]==elt)
+						if(v[j].getVariable()==Math.abs(elt))
 						{
 							ajout=false;
 							break;
@@ -173,13 +221,14 @@ public class ConstructeurClauseV4 {
 						else value=1;
 						
 						
-						int actualLvl=Variable.actualLevel;
 						Variable[] antecedants= new Variable[originalCls[i].length-2];
 						
 						//copy dst (from original clauses)
 						int cpt=0;
 						for(int j=0; j<originalCls[i].length-1; j++)
 						{	
+							
+							
 							//System.out.println(originalCls[i][j]+" "+src);
 							if(originalCls[i][j]!=elt)
 							{
@@ -188,52 +237,87 @@ public class ConstructeurClauseV4 {
 							}
 						}
 						
-						Variable var = Variable.find(cls[i][0], v);
+						//System.out.println(cls[i][0]);
+						
+						
+						Variable var = Variable.find(Math.abs(cls[i][0]), v);
+						
+						
 						var.addToGraph(value, Variable.actualLevel, cut, i, antecedants);
 						
-						unitList.add(i);
-						
-						
+						if(!unitList.contains(cls[i][0]))
+							unitList.add(cls[i][0]);
 					}
-					
-					
 					
 				}
 			}//for
 			
-			//from here, we have all the unit clauses
+			//from here, we have all of the unit clauses
 			//unit propagation
 			if(unitList.size()!=0)
 			{
+			
+				System.out.println("unitList");
+				for(int i=0; i<unitList.size(); i++)
+					System.out.println(unitList.get(i));
+				
+				//pour chaque clause unitaire
 				for(int i=0; i<unitList.size(); i++)
 				{
-					int elt=cls[i][0];
+					//faire unit propagation
+					int elt=unitList.get(i);
 					cls=ConstructeurClauseV4.unitPropagation(elt,cls);
-					if(cls==null) return null; //if there is empty clause/conflict
 					
-					//add the new interpretation
-					int[] newInterpretation= new int[interpretation.length+1];
-					for(int j=0; j<interpretation.length; j++)
-						newInterpretation[j]=interpretation[j];
-					newInterpretation[interpretation.length]=elt;
-					interpretation=newInterpretation;
+					System.out.println("ok");
+					
+					Variable.afficheDecision(v);
+					////////////
+					//CONFLICT//
+					////////////
+					//si conflit
+					if(cls.length==1&&cls[0].length==1)
+					{
+						int cpt=0;
+						int locationConflict = cls[0][0];
+						System.out.println("location conflit "+cls[0][0] + " " + originalCls[locationConflict].length);
+						
+						Variable[] antecedants= new Variable[originalCls[locationConflict].length-1]; 
+						for(int j=0; j<originalCls[locationConflict].length-1; j++)
+						{	
+							System.out.println(j + " " + originalCls[locationConflict][j] + " "+elt);
+							if(originalCls[locationConflict][j]!=-elt)
+							{
+								System.out.println(cpt);
+								System.out.println("testo " + originalCls[locationConflict][j]);
+								antecedants[cpt]=Variable.find(originalCls[locationConflict][j], v);	
+								cpt++;
+							}
+						}
+						
+						//ajoute k conflit
+						v[v.length-1].addToGraph(1, Variable.actualLevel, cut, locationConflict, antecedants);
+						System.out.println("empty clause 2");
+						return false; //if there is empty clause/conflict
+					}
+					///////////////
+					
+					
 				}
 				found=true;
-				cut++;//increment each time find cls
 				
+				cut++;//increment each time find cls
 			}
 			
 			
-			affichetab(interpretation);
+			Variable.afficheDecision(v);
 			
 			
 			break;
 			
 		}while(found);
 		
+		return true;
 		
-		
-		return interpretation;
 		
 	}
 	
@@ -247,7 +331,7 @@ public class ConstructeurClauseV4 {
 	
 	public static int[][] unitPropagation(int literal, int[][] cls)
 	{	
-		System.out.println("\nunitPropagation: literal: "+literal);
+		//System.out.println("\nunitPropagation: literal: "+literal);
 		
 		int[][] clausesTMP=cls;
 		
@@ -274,9 +358,13 @@ public class ConstructeurClauseV4 {
 				//else skip the value since it has to be removed from the clause
 				else if(clausesTMP[i][j]==-literal)
 				{
+					
+					//CONFLICT
 					if(clausesTMP[i].length==2){
 						System.out.println("clause nulle!");
-						return null;
+						int[][] conflict= new int[1][1];
+						conflict[0][0]=i;
+						return conflict;
 					}
 					found=true;
 				}
@@ -298,9 +386,9 @@ public class ConstructeurClauseV4 {
 			
 		}
 		
-		System.out.println("cls après traitement");	
+		//System.out.println("cls après traitement");	
 		//affiche(cls);
-		System.out.println("*********");
+		//System.out.println("*********");
 		
 		return clausesTMP;
 		
@@ -372,252 +460,173 @@ public class ConstructeurClauseV4 {
 		}
 	
 	
+	
+	public int[][] fusion(int[][] tab1, int[][] tab2)
+	{
+		int[][] newTab= new int[tab1.length+tab2.length][];
+		
+		for(int i=0; i<tab1.length; i++)
+			newTab[i]=tab1[i];
+		if(tab2!=null)
+			for(int i=0; i<tab2.length; i++)
+				newTab[tab1.length+i]=tab2[i];
+		return newTab;
+	}
+	
+	
 	//true -> satisfiable
 	//false -> unsatisfiable
 	
 	//partialInterpretation -> the variable we choosed (T/F) Empty at first
 	
+	//return the choosed 
+	public int pickBranchingVariable(Variable[] listeVariable)
+	{
+		
+		
+		//for each variable, test if it's already used by interpretation
+		//Search for a potential l
+		for(int i=0; i<listeVariable.length; i++)
+		{
+			
+			if(listeVariable[i].getValue()==-1)
+			{
+				Variable.actualLevel++;
+				listeVariable[i].addToGraph(1, Variable.actualLevel, 0, -1, new Variable[0]);
+				System.out.println("ladecision"+Variable.actualLevel);
+				return i;
+			}
+				
+		}
+		return -1;
+		
+	}
+	
+	
+	
+	
 	public int[] CDCL(int[][] cls, int nbVariable, Variable[] listeVariable)
 	{
-		Graph g = new Graph();
-		int[] interpretation={};
-		int[][] learnedCls;
 		
 		
-		int cpt2=0;
-		while(true)
+		boolean result;
+		int[][] learnedCls={};
+		int[][] cpyCls=fusion(cls,learnedCls);
+		int[][] originalCls= cpyCls.clone();
+		
+		result=unitResolution(cpyCls,originalCls,listeVariable);
+		if(result==false)
+			return null;
+		
+		boolean pick=true;
+		int location;
+		
+		int cpt=0;
+		while(Variable.actualDecision!=listeVariable.length-1&&cpt<5)
+		
+		//while(Variable.actualDecision!=listeVariable.length-1)
 		{
-			System.out.println("ITERATION: "+cpt2);
-			cpt2++;
-			
-			//if(cls[0][0]<-50)return null;
-			System.out.println("DEBUT DE WHILE");
-			System.out.println("interpretation");
-			affichetab(interpretation);
 			
 			
-			int[] conflictDrivenClause = null;
-			int[][] cpyCls=cls.clone();
+			cpt++;
 			
-			System.out.println(cpyCls+" "+cls+" "+g+" "+interpretation);
-			int[] result = unitResolution(cpyCls, cls, g, interpretation);//recupere interpretation
-			
-			if(result!=null) interpretation=result;
+			System.out.println("********************************************************");
 			
 			
-			//affiche(cls);
 			
-			//conflicts
-			if(result==null)
+			if(pick)
 			{
-				System.out.println("******************");
-				System.out.println("IL Y A CONFLIT");
-				System.out.println("******************");
-				
-				affichetab(interpretation);
-				g.affiche();
-				
-				//contradiction without any decision 
-				if(interpretation.length==0)
-					return null;
-				//backtrack to asserting level
-				else
-				{
-					int conflictLevel=g.getNode(g.getNode().length-1).getLevel();
-					
-					int[][] clauses;
-					int assertingLevel = -1;
-					
-					//determine assertingClause, negation, then add it to the learned clause
-					
-					//get the nb of clauses
-					int i=g.getNode().length-1;
-					while(g.getNode(i).getCut()!=0)	
-						i--;
-					
-					int nbClauses= g.getNode().length-i;
-					clauses=new int[nbClauses][];
-					
-					
-					//get the clauses
-					int cpt=0;
-					for(int j=i; j<g.getNode().length;j++)
-					{
-						int[] clause = g.getNode(j).getDst();
-						clauses[cpt]=clause;
-						cpt++;
-					}	
-					
-					System.out.println("Conflict sets!");
-					affiche(clauses);
-					
-					
-					//from here, we have the clauses (conflict set)
-					//conflict level
-					//must find first clause with only 1 level equals to conflict level
-					
-					int indiceClause=0;
-					//for each clauses
-					for(int j=0; j<clauses.length; j++)
-					{
-						//count the number of literal with same level than conflict level
-						int nbLvl=0;
-						for(int k=0; k<clauses[j].length; k++)
-						{
-							if(g.getLevelOf(clauses[j][k])==conflictLevel||g.getLevelOf(-clauses[j][k])==conflictLevel)
-								nbLvl++;
-						}
-						
-						//if only one literal has the same level, search for a conflictDrivenClause
-						if(nbLvl==1)
-						{
-							indiceClause=j;
-							conflictDrivenClause=clauses[indiceClause];
-							int max=Integer.MIN_VALUE;
-
-							
-							//test loop
-							//search for the second highest level in the clause (determine assertingLevel)
-							for(int k=0; k<conflictDrivenClause.length; k++)
-							{
-								//test max
-								int lvl=g.getLevelOf(conflictDrivenClause[k]);
-								if(lvl==-1)
-									lvl=g.getLevelOf(-conflictDrivenClause[k]);
-								if(lvl>max&&lvl<conflictLevel)
-								{
-									assertingLevel=lvl;
-									max=lvl;
-									System.out.println("max: "+max+"lvl: "+lvl+"conflictLvl: "+conflictLevel);
-								}
-							}
-							
-							
-							//modification of graph level
-							if(assertingLevel!=-1)
-							{	
-								g.setLevel(assertingLevel);
-								break;
-							}
-							else
-								g.setLevel(1);
-							
-							
-						}
-					}
-					
-				
-					//negate the clause to get the conflictDrivenClause
-					for(int j=0; j<conflictDrivenClause.length; j++)
-						conflictDrivenClause[j]=conflictDrivenClause[j]*-1;
-					
-					//add a 0 at the end of the clause (has to correspond with cnf format
-					conflictDrivenClause=add(conflictDrivenClause,0);
-					
-					//add the clause
-					cls=add(cls,conflictDrivenClause);
-					
-					//erase node after asserting level (reduce tab)
-					int cursor=g.removeNode(assertingLevel);
-					
-					//get where to cut interpretation
-					int crs=0;
-					for(int j=0; j<interpretation.length; j++)
-					{
-						if(interpretation[j]==cursor){
-							crs=j;
-							break;
-						}
-					}
-					
-					//flip the p value
-					interpretation[crs]=-interpretation[crs]; 
-					
-					//erase interpretation after asserting level (reduce the array
-					int[] newInterpretation= new int[crs+1];
-					
-					for(int j=0; j<=crs; j++)
-						newInterpretation[j]=interpretation[j];
-					
-					interpretation=newInterpretation;
-					
-					
-					System.out.println("**************************");
-					System.out.println("Après effacement des interpretations, lvl: "+assertingLevel);
-					affichetab(interpretation);
-					System.out.println("***************************");
-					g.affiche();
-				
-					
-				}	
+				Variable.afficher(listeVariable);
+				location = pickBranchingVariable(listeVariable);
+				System.out.println("pick a branch: "+listeVariable[location].getVariable());
 			}
-			
-			////////////////////
-			//  No conflicts ///
-			////////////////////
 			else
 			{
-				boolean found=false;
-				int l = 0;
-				
-				//for each variable, test if it's already used by interpretation
-				//Search for a potential l
-				for(int i=0; i<listeVariable.length; i++)
-				{
-					boolean found2=false;
-					for(int j=0; j<g.getNode().length; j++)
-					{
-						if(Math.abs(listeVariable[i])==Math.abs(g.getNode(j).getSrc()))
-						{
-							found2=true;
-						}
-					}
-					
-					if(!found2)
-					{
-						System.out.println("Trouvé un l: "+listeVariable[i]);
-						found=true;
-						l=listeVariable[i];
-						break;
-					}
-						
-				}
-				
-				//found an l
-				if(found)
-				{	
-					g.setLevel(g.getLevel()+1);
-					
-					//add l to the interpretation
-					interpretation=add(interpretation,l);
-					
-					System.out.println("Nouvelle interpretation:");
-					affichetab(interpretation);
-					
-					int[] tab = {l};
-					Node n=new Node(g.getLevel(), l, 0,tab);
-					g.addNode(n);
-					
-				}
-				else
-				{
-					g.affiche();
-					affiche(cls);
-					return interpretation;
-				}
+				//System.out.println("branch: "+interpretation[interpretation.length-1]);
 			}
 			
+			//Variable.afficher(listeVariable);
 			
 			
+			cpyCls=fusion(cls,learnedCls);
+			originalCls=cpyCls.clone();
+			result=unitResolution(cpyCls,originalCls,listeVariable);
 			
+			affiche(learnedCls);
 			
+			if(result==false)
+			{
+				int[] clause = Variable.createConflictClause(originalCls, listeVariable);
+				
+				System.out.println("tabClause:");
+				affichetab(clause);
+				System.out.println("interpretation:");
+				Variable.afficheDecision(listeVariable);
+				
+				learnedCls=add(learnedCls,clause);
+				
+				//got the clause, got to backtrack now
+				//choose the mint level from the clause (to backtrack)
+				int maxLevel=Integer.MIN_VALUE;
+				Variable vRes=null;
+				for(int i=0; i<clause.length-1; i++)
+				{
+					System.out.println(i);
+					Variable v = Variable.find(Math.abs(clause[i]),listeVariable);
+					if(v.getLevel()>maxLevel&&v.getCut()==0&&v.getValue()==1)
+					{
+						maxLevel=v.getLevel();
+						vRes=v;
+					}
+					Variable.actualLevel=maxLevel;
+					
+				}
+				
+				//change interpretation
+				System.out.println("restart variable"+Variable.actualLevel);
+				//Variable.afficher(listeVariable);
+				int nbRemoved=Variable.restartVariable(listeVariable, Variable.actualLevel);
+				System.out.println("restart variable");
+				Variable.afficher(listeVariable);
+				
+				
+				System.out.println("nombre suppr!!"+nbRemoved);
+				Variable.MAJActualDecision(listeVariable);
+				System.out.println(Variable.actualDecision);
+				Variable.afficheDecision(listeVariable);
+				
+				
+				
+				
+				
+				
+				
+				//flip the atom
+				System.out.println("flip the atom");
+				if(vRes.getValue()==-1) return null;
+				if(vRes.getValue()==0)vRes.setValue(1);
+				if(vRes.getValue()==1)vRes.setValue(0);
+				System.out.println(vRes.getVariable()+ " value: "+vRes.getValue());
+				//interpretation[interpretation.length-1]=interpretation[interpretation.length-1]*-1;
+				pick=false;
+				
+				
+				
+				System.out.println("new interpretation");
+				Variable.afficheDecision(listeVariable);
+				
+				
+				
+			}
+			else
+				pick=true;
+			
+			Variable.MAJActualDecision(listeVariable);
 		}
 		
-		
-		
-			
-		 
-		
+		System.out.println("FIN!!");
+		Variable.afficheDecision(listeVariable);
+		return null;
 		
 	}
 	
@@ -680,19 +689,7 @@ public class ConstructeurClauseV4 {
 		return true;
 	}
 	
-	//create an array with only 0 in it
-	public int[] createPartialInterpretation(int[][] cls)
-	{
-		int nbVar=cls[0][0];
-		int[] partialI=new int[nbVar];
-		
-		for(int i=0;i<nbVar; i++)
-		{
-			partialI[i]=0;
-		}
-		
-		return partialI;
-	}
+
 	
 	
 	public void affiche()
@@ -722,6 +719,7 @@ public class ConstructeurClauseV4 {
 	}
 	
 	public static void main(String[] args) {
+		//ConstructeurClauseV4 c = new ConstructeurClauseV4("exemple6.cnf");
 		ConstructeurClauseV4 c = new ConstructeurClauseV4("queen.cnf");
 		
 			

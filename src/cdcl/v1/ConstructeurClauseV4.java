@@ -13,6 +13,7 @@ public class ConstructeurClauseV4 {
 	private int nbVariable;
 	private int[] listeVariable;
 	private Vector<int[]> solutions = new Vector<int[]>();
+	private Vector<Variable> listeBackTrack = new Vector<Variable>();
 	
 	
 	public ConstructeurClauseV4(String nomFichier)
@@ -279,16 +280,13 @@ public class ConstructeurClauseV4 {
 					{
 						int cpt=0;
 						int locationConflict = cls[0][0];
-						System.out.println("location conflit "+cls[0][0] + " " + originalCls[locationConflict].length);
+						//System.out.println("location conflit "+cls[0][0] + " " + originalCls[locationConflict].length);
 						
 						Variable[] antecedants= new Variable[originalCls[locationConflict].length-1]; 
 						for(int j=0; j<originalCls[locationConflict].length-1; j++)
 						{	
-							System.out.println(j + " " + originalCls[locationConflict][j] + " "+elt);
 							if(originalCls[locationConflict][j]!=-elt)
 							{
-								System.out.println(cpt);
-								System.out.println("testo " + originalCls[locationConflict][j]);
 								antecedants[cpt]=Variable.find(originalCls[locationConflict][j], v);	
 								cpt++;
 							}
@@ -296,7 +294,6 @@ public class ConstructeurClauseV4 {
 						
 						//ajoute k conflit
 						v[v.length-1].addToGraph(1, Variable.actualLevel, cut, locationConflict, antecedants);
-						System.out.println("empty clause 2");
 						return false; //if there is empty clause/conflict
 					}
 					///////////////
@@ -386,10 +383,6 @@ public class ConstructeurClauseV4 {
 			
 		}
 		
-		//System.out.println("cls après traitement");	
-		//affiche(cls);
-		//System.out.println("*********");
-		
 		return clausesTMP;
 		
 	}
@@ -474,12 +467,10 @@ public class ConstructeurClauseV4 {
 	}
 	
 	
-	//true -> satisfiable
-	//false -> unsatisfiable
 	
-	//partialInterpretation -> the variable we choosed (T/F) Empty at first
 	
-	//return the choosed 
+	
+	//return the choosed Variable
 	public int pickBranchingVariable(Variable[] listeVariable)
 	{
 		
@@ -493,7 +484,6 @@ public class ConstructeurClauseV4 {
 			{
 				Variable.actualLevel++;
 				listeVariable[i].addToGraph(1, Variable.actualLevel, 0, -1, new Variable[0]);
-				System.out.println("ladecision"+Variable.actualLevel);
 				return i;
 			}
 				
@@ -522,65 +512,169 @@ public class ConstructeurClauseV4 {
 		int location;
 		
 		int cpt=0;
-		while(Variable.actualDecision!=listeVariable.length-1&&cpt<5)
-		
-		//while(Variable.actualDecision!=listeVariable.length-1)
+		//while(Variable.actualDecision!=listeVariable.length-1&&cpt<10)
+		//while(Variable.actualDecision!=listeVariable.length-1&&lastCheck)
+		while(true)
 		{
-			
 			
 			cpt++;
 			
 			System.out.println("********************************************************");
 			
 			
-			
-			if(pick)
+			//choose new Variable (not when all the decisions are taken)
+			if(pick&&Variable.actualDecision!=listeVariable.length)
 			{
 				Variable.afficher(listeVariable);
 				location = pickBranchingVariable(listeVariable);
 				System.out.println("pick a branch: "+listeVariable[location].getVariable());
 			}
-			else
-			{
-				//System.out.println("branch: "+interpretation[interpretation.length-1]);
-			}
 			
-			//Variable.afficher(listeVariable);
-			
-			
+			//prepare the unit resolution
 			cpyCls=fusion(cls,learnedCls);
 			originalCls=cpyCls.clone();
 			result=unitResolution(cpyCls,originalCls,listeVariable);
 			
-			affiche(learnedCls);
+			//Breaking loop condition, happen when the unit resolution is correct 
+			//and when all the decision are token
+			if(result==true&&Variable.actualDecision==listeVariable.length)
+			{
+				System.out.println("");
+				break;
+				
+			}
 			
-			if(result==false)
+			////////////
+			//CONFLICT//
+			////////////
+			//Create the new conflict clause, then backtrack
+			else if(result==false)
 			{
 				int[] clause = Variable.createConflictClause(originalCls, listeVariable);
 				
-				System.out.println("tabClause:");
+				System.out.println("new conflict clause:");
 				affichetab(clause);
 				System.out.println("interpretation:");
 				Variable.afficheDecision(listeVariable);
 				
+				//add the interpretation to the learned clauses
 				learnedCls=add(learnedCls,clause);
+				
 				
 				//got the clause, got to backtrack now
 				//choose the mint level from the clause (to backtrack)
+				
+				
+				//fill the Conflict list
+				
+				/*
+				Vector<Variable> listeConflict= new Vector<Variable>();
+				int minLevel=Integer.MIN_VALUE;
+				Variable vRes=null;
+				for(int i=0; i<clause.length; i++)
+				{
+					Variable v = Variable.find(Math.abs(clause[i]),listeVariable);
+					listeConflict.add(v);
+					
+				}
+				
+				while(true)
+				{	
+					System.out.println("while true");
+					int min=0;
+					for(int i=0; i<listeConflict.size()-1; i++)
+					{	
+						if(listeConflict.get(i).getLevel()<minLevel)
+						{	
+							minLevel=listeConflict.get(i).getLevel();
+							min=i;
+						}
+						
+					}
+					if(listeBackTrack.contains(listeConflict.get(min)))
+						listeConflict.remove(min);
+					else
+					{
+						Variable.actualLevel=listeConflict.get(min).getLevel();
+						if(listeBackTrack.size()!=0)
+							while(listeBackTrack.lastElement().getLevel()>Variable.actualLevel)
+								listeBackTrack.removeElement(listeBackTrack.lastElement());
+						listeBackTrack.add(listeConflict.get(min));
+						vRes=listeConflict.get(min);
+						break;
+					}
+				}
+				
+				//* ********************/
+				
+				
+				
+				/*
 				int maxLevel=Integer.MIN_VALUE;
+				
 				Variable vRes=null;
 				for(int i=0; i<clause.length-1; i++)
 				{
-					System.out.println(i);
+					System.out.println(i+":"+clause[i]);
 					Variable v = Variable.find(Math.abs(clause[i]),listeVariable);
-					if(v.getLevel()>maxLevel&&v.getCut()==0&&v.getValue()==1)
+					System.out.println(v.getVariable()+" "+v.getValue()+" "+v.getDecisionLevel()+" "+v.getCut());
+					if(v.getLevel()>maxLevel&&v.getCut()==0&&v.getVariable()!=-1)
 					{
+						System.out.println("ok");
 						maxLevel=v.getLevel();
 						vRes=v;
+						
 					}
-					Variable.actualLevel=maxLevel;
 					
 				}
+				*/
+				
+				int maxLevel=Integer.MIN_VALUE;
+				
+				Variable vRes=null;
+				
+				
+				//searching for the maxLevel in ConflictClause
+				for(int i=0; i<clause.length-1; i++)
+				{
+					System.out.println(i+":"+clause[i]);
+					Variable v = Variable.find(Math.abs(clause[i]),listeVariable);
+					System.out.println(v.getVariable()+" "+v.getValue()+" "+v.getDecisionLevel()+" "+v.getCut());
+					if(v.getLevel()>maxLevel&&v.getCut()==0&&v.getVariable()!=-1)
+					{
+						System.out.println("ok");
+						maxLevel=v.getLevel();
+						vRes=v;
+						
+					}
+					
+				}
+				
+				System.out.println(vRes.getValue());
+				
+				//if it's the same level than actualLevel and already flipped, we search for another one
+				System.out.println("maxLevel"+maxLevel+"actualLevel"+Variable.actualLevel);
+				if(!(maxLevel==Variable.actualLevel&&vRes.getValue()==0))
+					Variable.actualLevel=maxLevel;
+				else
+				{
+					System.out.println("ok!!");
+					int lastdecision=-1;
+					//search for last 1 with cut=0
+					for(int i=0; i<listeVariable.length; i++)
+					{
+						if(listeVariable[i].getValue()==1&&listeVariable[i].getDecisionLevel()>lastdecision
+								&&listeVariable[i].getDecisionLevel()!=Variable.actualLevel)
+						{	
+							lastdecision=listeVariable[i].getDecisionLevel();
+							vRes=listeVariable[i];
+						}
+						
+					}
+					Variable.actualLevel=lastdecision;
+					
+				}
+				
 				
 				//change interpretation
 				System.out.println("restart variable"+Variable.actualLevel);
@@ -604,8 +698,8 @@ public class ConstructeurClauseV4 {
 				//flip the atom
 				System.out.println("flip the atom");
 				if(vRes.getValue()==-1) return null;
-				if(vRes.getValue()==0)vRes.setValue(1);
-				if(vRes.getValue()==1)vRes.setValue(0);
+				else if(vRes.getValue()==0)vRes.setValue(1);
+				else if(vRes.getValue()==1)vRes.setValue(0);
 				System.out.println(vRes.getVariable()+ " value: "+vRes.getValue());
 				//interpretation[interpretation.length-1]=interpretation[interpretation.length-1]*-1;
 				pick=false;
@@ -623,6 +717,9 @@ public class ConstructeurClauseV4 {
 			
 			Variable.MAJActualDecision(listeVariable);
 		}
+		
+		System.out.println(Variable.actualDecision);
+		System.out.println(listeVariable.length);
 		
 		System.out.println("FIN!!");
 		Variable.afficheDecision(listeVariable);

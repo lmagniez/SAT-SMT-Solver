@@ -408,7 +408,7 @@ public class ConstructeurClauseV2 {
 	}
 	
 	public static void main(String[] args) {
-		ConstructeurClauseV2 c = new ConstructeurClauseV2("queen.cnf");
+		ConstructeurClauseV2 c = new ConstructeurClauseV2("exemple6.cnf");
 		
 			
 		

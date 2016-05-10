@@ -5,7 +5,7 @@ import java.util.Vector;
 public class Variable {
 
 	public static int actualLevel=0;
-	public static int actualDecision=0;
+	public static int actualDecision=0;//number of variable set
 	
 	private int variable;
 	private int value; //0: false, 1:true, -1:not assigned
@@ -107,7 +107,7 @@ public class Variable {
 			 	
 			}
 			
-			if(!(v[i].decisionLevel<=decisionLevel&&v[i].cut==0)&&v[i].decisionLevel!=-1&&v[i].variable!=-1)
+			if(!(v[i].decisionLevel<=decisionLevel)&&v[i].decisionLevel!=-1&&v[i].variable!=-1)
 			{
 				System.out.println(v[i].getVariable());
 				v[i].cut=-1;
@@ -382,6 +382,46 @@ public class Variable {
 		return this.cut;
 	}
 	
+	public static Variable getLast(Variable[] v)
+	{
+		int maxDecision=Integer.MIN_VALUE;
+		int maxCut=Integer.MIN_VALUE;
+		int res=-1;
+		
+		for(int i=0; i<v.length; i++)
+		{
+			if(v[i].variable==-1)
+			{
+				//do nothing
+			}
+			else if(maxDecision<v[i].getLevel())
+			{
+				maxDecision=v[i].getLevel();
+				maxCut=v[i].getCut();
+				res=i;
+			}
+			else if(maxDecision==v[i].getLevel()&&maxCut<v[i].getCut())
+			{
+				maxCut=v[i].getCut();
+				res=i;
+			}
+		}
+		return v[res];
+		
+	}
+	
+	public int getDecisionLevel() {
+		return decisionLevel;
+	}
+
+	public void setDecisionLevel(int decisionLevel) {
+		this.decisionLevel = decisionLevel;
+	}
+
+	public void setCut(int cut) {
+		this.cut = cut;
+	}
+
 	public void setValue(int e)
 	{
 		this.value=e;

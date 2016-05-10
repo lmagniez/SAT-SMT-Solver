@@ -675,7 +675,7 @@ public class ConstructeurClauseV3 {
 	}
 	
 	public static void main(String[] args) {
-		ConstructeurClauseV3 c = new ConstructeurClauseV3("queen.cnf");
+		ConstructeurClauseV3 c = new ConstructeurClauseV3("exemple6.cnf");
 		
 			
 		

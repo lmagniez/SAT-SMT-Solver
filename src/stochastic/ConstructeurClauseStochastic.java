@@ -275,7 +275,7 @@ public class ConstructeurClauseStochastic {
 	public int[] stochastic(int[][] cls, int nbVariable, int[] listeVariable)
 	{
 		
-		final int MAX_FLIP=100000;
+		final int MAX_FLIP=1000000;
 		final int MAX_INTERPRETATION=10000;
 		
 		int cptFlip=0, cptInterpretation=0;

@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
+import dpll.v2.ConstructeurClauseV2;
+
 
 public class ConstructeurClause {
 	
@@ -435,6 +437,11 @@ public class ConstructeurClause {
 	
 	
 	
-	
+	public static void main(String[] args) {
+		ConstructeurClause c = new ConstructeurClause("exemple6.cnf");
+		
+			
+		
+	}
 	
 }

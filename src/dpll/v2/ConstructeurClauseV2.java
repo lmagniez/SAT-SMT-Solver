@@ -84,10 +84,21 @@ public class ConstructeurClauseV2 {
 		//System.out.println("result: "+DPLL(clauses, partialI, 0));
 		int[] res = DPLL(clauses);
 		
-		System.out.println("\n\n\nRESULTAT");
-		for(int i=0; i<res.length; i++)
-			System.out.println(res[i]);
-		System.out.println("///");
+		if(res==null)
+			System.out.println("UNSATISFIABLE");
+		else
+		{
+			System.out.println("SATISFIABLE");
+			
+			res=this.selectionSort(res);
+			
+			System.out.println("\n\n\nRESULTAT (taille:"+res.length+")");
+			for(int i=0; i<res.length; i++)
+				System.out.print(res[i]+" ");
+			System.out.println("");
+		}
+		
+		
 		
 	}
 	
@@ -407,10 +418,28 @@ public class ConstructeurClauseV2 {
 		}
 	}
 	
+	public int[] selectionSort(int[] data){
+		  int lenD = data.length;
+		  int j = 0;
+		  int tmp = 0;
+		  for(int i=0;i<lenD;i++){
+		    j = i;
+		    for(int k = i;k<lenD;k++){
+		      if(Math.abs(data[j])>Math.abs(data[k])){
+		        j = k;
+		      }
+		    }
+		    tmp = data[i];
+		    data[i] = data[j];
+		    data[j] = tmp;
+		  }
+		  return data;
+		}
+	
 	public static void main(String[] args) {
-		ConstructeurClauseV2 c = new ConstructeurClauseV2("exemple6.cnf");
-		
-			
+		//ConstructeurClauseV2 c = new ConstructeurClauseV2("exemple6.cnf");
+		ConstructeurClauseV2 c = new ConstructeurClauseV2("uf50-01.cnf");
+		//ConstructeurClauseV2 c = new ConstructeurClauseV2("aim-50-1_6-no-1.cnf");
 		
 	}
 	

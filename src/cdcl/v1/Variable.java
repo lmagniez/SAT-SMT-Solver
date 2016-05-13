@@ -108,6 +108,7 @@ public class Variable {
 			}
 			
 			if(!(v[i].decisionLevel<=decisionLevel)&&v[i].decisionLevel!=-1&&v[i].variable!=-1)
+			//else if(v[i].decisionLevel>=decisionLevel&&v[i].decisionLevel!=-1&&v[i].variable!=-1)
 			{
 				System.out.println(v[i].getVariable());
 				v[i].cut=-1;
@@ -176,24 +177,28 @@ public class Variable {
 			Variable var =vect.get(0);
 			if(var!=null)
 			{
-				for(int i=0; i<var.antecedants.length-1; i++)
-					if(!vect.contains(var.antecedants[i]))//check if already added
-						vect.add(var.antecedants[i]);
-				
-				System.out.println("test" + vect + " " + vect.get(0).w);
-				vect.get(0).afficher(vect.get(0));
-				
-				if(vect.get(0).w!=-1)//not useful if decided by algorithm
-				{	
-					int[] clause2=cls[vect.get(0).w];
-					clause = fuse(clause,clause2);
+				if(var.antecedants!=null)
+				{
+					Variable.afficher(var);
+					for(int i=0; i<var.antecedants.length-1; i++)
+						if(!vect.contains(var.antecedants[i]))//check if already added
+							vect.add(var.antecedants[i]);
 					
-					System.out.println("OKOKOK");
-					for(int i=0; i<clause.length; i++)
-						System.out.print(clause[i]+" ");
+					System.out.println("test" + vect + " " + vect.get(0).w);
+					vect.get(0).afficher(vect.get(0));
 					
-					
-				}//make a swap if there's a problem?
+					if(vect.get(0).w!=-1)//not useful if decided by algorithm
+					{	
+						int[] clause2=cls[vect.get(0).w];
+						clause = fuse(clause,clause2);
+						
+						System.out.println("OKOKOK");
+						for(int i=0; i<clause.length; i++)
+							System.out.print(clause[i]+" ");
+						
+						
+					}//make a swap if there's a problem?
+				}
 			}
 			vect.remove(0);
 		}
@@ -210,7 +215,7 @@ public class Variable {
 	{
 		System.out.println("*************************");
 		System.out.println("Search for UIP");
-		Variable.afficher(v);
+		//Variable.afficher(v);
 		
 		Vector<Integer> results = new Vector<Integer>();
 		

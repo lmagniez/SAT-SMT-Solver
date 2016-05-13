@@ -1,23 +1,29 @@
-package cdcl.v1;
+package cdcl.v2;
 
+import java.awt.List;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Vector;
 
+import cdcl.v1.Variable;
 
-public class ConstructeurClauseV4 {
+
+public class ConstructeurClauseV5 {
 	
 	private int[][] clauses;
 	private int nbClause;
 	private int nbVariable;
 	private int[] listeVariable;
-	private Vector<int[]> solutions = new Vector<int[]>();
-	private Vector<Variable> listeBackTrack = new Vector<Variable>();
+	private static Vector<VariableV2> decisions = new Vector<VariableV2>();
 	
 	
-	public ConstructeurClauseV4(String nomFichier)
+	public ConstructeurClauseV5(String nomFichier)
 	{
+		
+		
 		BufferedReader br = null;
 		
 		try {
@@ -105,7 +111,7 @@ public class ConstructeurClauseV4 {
 		
 		listeVariable=this.selectionSort(listeVariable);
 		listeVariable[listeVariable.length-1]=-1;
-		Variable[] listeV= Variable.createVariable(listeVariable);
+		VariableV2[] listeV= VariableV2.createVariable(listeVariable);
 		
 		
 		//affiche(clauses);
@@ -119,7 +125,8 @@ public class ConstructeurClauseV4 {
 		
 	}
 	
-	public int[] selectionSort(int[] data){
+	public int[] selectionSort(int[] data)
+	{
 		  int lenD = data.length;
 		  int j = 0;
 		  int tmp = 0;
@@ -135,9 +142,9 @@ public class ConstructeurClauseV4 {
 		    data[j] = tmp;
 		  }
 		  return data;
-		}
+	}
 	
-	public static boolean unitResolution(int[][] cls, int[][] originalCls, Variable[] v)
+	public static boolean unitResolution(int[][] cls, int[][] originalCls, VariableV2[] v)
 	{
 		
 		int cut = 1;
@@ -156,7 +163,7 @@ public class ConstructeurClauseV4 {
 					toPropagate*=-1;
 				
 			
-				res=ConstructeurClauseV4.unitPropagation(toPropagate,cls);
+				res=ConstructeurClauseV5.unitPropagation(toPropagate,cls);
 				
 				
 				//conflict
@@ -164,7 +171,7 @@ public class ConstructeurClauseV4 {
 				{
 					int cpt=0;
 					int locationConflict = res[0][0];
-					Variable[] antecedants= new Variable[originalCls[locationConflict].length-1]; 
+					VariableV2[] antecedants= new VariableV2[originalCls[locationConflict].length-1]; 
 					//create the antecedants for k
 					for(int j=0; j<originalCls[locationConflict].length-1; j++)
 					{	
@@ -179,13 +186,15 @@ public class ConstructeurClauseV4 {
 						System.out.println(cpt);
 						if(originalCls[locationConflict][j]!=cls[i][0])
 						{
-							antecedants[cpt]=Variable.find(originalCls[locationConflict][j], v);	
+							antecedants[cpt]=VariableV2.find(originalCls[locationConflict][j], v);	
 							cpt++;
 						}
 					}
 					
 					//ajoute k conflit
-					v[v.length-1].addToGraph(1, Variable.actualLevel, cut, locationConflict, antecedants);
+					v[v.length-1].addToGraph(1, VariableV2.actualLevel, cut, locationConflict, antecedants);
+					decisions.add(v[v.length-1]);
+					
 					
 					System.out.println("empty clause");
 					return false; //if there is empty clause/conflict
@@ -198,18 +207,23 @@ public class ConstructeurClauseV4 {
 			cls=res;
 		
 		System.out.println("NEW AJOUT");
-		Variable.afficheDecision(v);
+		VariableV2.afficheDecision(v);
 		
 		//search for unit clauses (clause with only one literal)	
 		do
 		{
+			
+			System.out.println("ok");
 			found=false;
 			
 			Vector<Integer> unitList = new Vector<Integer>(); 
 			
+			
+			System.out.println("search again");
 			//look in all the clauses
 			for(int i=0; i<cls.length; i++)
 			{
+				
 				
 				//if there is a unit clause
 				if(cls[i].length==2)
@@ -220,7 +234,7 @@ public class ConstructeurClauseV4 {
 					
 					for(int j=0;j<v.length;j++)
 					{
-						if(v[j].getVariable()==Math.abs(elt))
+						if(v[j].getVariable()==Math.abs(elt)&&v[j].getValue()!=-1)
 						{
 							ajout=false;
 							break;
@@ -231,13 +245,11 @@ public class ConstructeurClauseV4 {
 					//add to the graph (and to unitList)
 					if(ajout)
 					{
-						
-						
-						
-						
 						System.out.println("ajout de elt: "+elt+" en position i: "+i );
+						System.out.println("clause");
 						for(int c=0;c<cls[i].length;c++)System.out.print(cls[i][c]+" ");
 						System.out.println();
+						System.out.println("original");
 						for(int c=0;c<originalCls[i].length;c++)System.out.print(originalCls[i][c]+" ");
 						System.out.println();
 						
@@ -247,7 +259,7 @@ public class ConstructeurClauseV4 {
 						else value=1;
 						
 						
-						Variable[] antecedants= new Variable[originalCls[i].length-2];
+						VariableV2[] antecedants= new VariableV2[originalCls[i].length-2];
 						
 						//copy dst (from original clauses)
 						int cpt=0;
@@ -258,7 +270,7 @@ public class ConstructeurClauseV4 {
 							//System.out.println(originalCls[i][j]+" "+src);
 							if(originalCls[i][j]!=elt)
 							{
-								antecedants[cpt]=Variable.find(originalCls[i][j], v);	
+								antecedants[cpt]=VariableV2.find(originalCls[i][j], v);	
 								cpt++;
 							}
 						}
@@ -266,10 +278,12 @@ public class ConstructeurClauseV4 {
 						//System.out.println(cls[i][0]);
 						
 						
-						Variable var = Variable.find(Math.abs(cls[i][0]), v);
+						VariableV2 var = VariableV2.find(Math.abs(cls[i][0]), v);
 						
+						System.out.println("add to graph: "+i);
+						var.addToGraph(value, VariableV2.actualLevel, cut, i, antecedants);
+						decisions.add(var);
 						
-						var.addToGraph(value, Variable.actualLevel, cut, i, antecedants);
 						
 						if(!unitList.contains(cls[i][0]))
 							unitList.add(cls[i][0]);
@@ -282,7 +296,6 @@ public class ConstructeurClauseV4 {
 			//unit propagation
 			if(unitList.size()!=0)
 			{
-			
 				System.out.println("unitList");
 				for(int i=0; i<unitList.size(); i++)
 					System.out.println(unitList.get(i));
@@ -292,11 +305,9 @@ public class ConstructeurClauseV4 {
 				{
 					//faire unit propagation
 					int elt=unitList.get(i);
-					cls=ConstructeurClauseV4.unitPropagation(elt,cls);
+					cls=ConstructeurClauseV5.unitPropagation(elt,cls);
 					
-					System.out.println("ok");
 					
-					Variable.afficheDecision(v);
 					////////////
 					//CONFLICT//
 					////////////
@@ -308,18 +319,19 @@ public class ConstructeurClauseV4 {
 						int locationConflict = cls[0][0];
 						//System.out.println("location conflit "+cls[0][0] + " " + originalCls[locationConflict].length);
 						
-						Variable[] antecedants= new Variable[originalCls[locationConflict].length-1]; 
+						VariableV2[] antecedants= new VariableV2[originalCls[locationConflict].length-1]; 
 						for(int j=0; j<originalCls[locationConflict].length-1; j++)
 						{	
 							if(originalCls[locationConflict][j]!=-elt)
 							{
-								antecedants[cpt]=Variable.find(originalCls[locationConflict][j], v);	
+								antecedants[cpt]=VariableV2.find(originalCls[locationConflict][j], v);	
 								cpt++;
 							}
 						}
 						
 						//ajoute k conflit
-						v[v.length-1].addToGraph(1, Variable.actualLevel, cut, locationConflict, antecedants);
+						v[v.length-1].addToGraph(1, VariableV2.actualLevel, cut, locationConflict, antecedants);
+						decisions.add(v[v.length-1]);
 						return false; //if there is empty clause/conflict
 					}
 					///////////////
@@ -332,10 +344,8 @@ public class ConstructeurClauseV4 {
 			}
 			
 			
-			Variable.afficheDecision(v);
-			
-			
-			break;
+			VariableV2.afficheDecision(v);
+			System.out.println("found:"+found);
 			
 		}while(found);
 		
@@ -412,6 +422,101 @@ public class ConstructeurClauseV4 {
 		return clausesTMP;
 		
 	}
+	
+	
+	
+	
+	
+	
+	//return the choosed Variable
+	public VariableV2 nextBranchingVariable(VariableV2[] listeVariable)
+	{
+		
+		
+		//for each variable, test if it's already used by interpretation
+		//Search for a potential l
+		for(int i=0; i<listeVariable.length; i++)
+		{
+			
+			if(listeVariable[i].getValue()==-1)
+			{
+				//VariableV2.actualLevel++;
+				//listeVariable[i].addToGraph(1, VariableV2.actualLevel, 0, -1, new VariableV2[0]);
+				return listeVariable[i];
+			}
+				
+		}
+		return null;
+		
+	}
+	
+	
+	
+	
+	public int[] CDCL(int[][] cls, int nbVariable, VariableV2[] listeVariable)
+	{
+
+		int test=0;
+		boolean result;
+		int[][] learnedCls={};
+		int[][] cpyCls=fusion(cls,learnedCls);
+		int[][] originalCls= cpyCls.clone();
+		VariableV2 next=null;
+		boolean pick=true;
+		
+		//INIT PROPAGATION
+		//First test (check if no primal conflict)
+		result=unitResolution(cpyCls,originalCls,listeVariable);
+		if(result==false)
+			return null;
+		
+		
+		while(nextBranchingVariable(listeVariable)!=null)
+		{
+			System.out.println("conflits appris");
+			affiche(learnedCls);
+			
+			if(pick)
+			{
+				VariableV2.actualLevel++;
+				next=nextBranchingVariable(listeVariable);
+				next.addToGraph(1, VariableV2.actualLevel, 0, -1, new VariableV2[0]);
+				decisions.add(next);
+				System.out.println("add: "+next.getVariable());
+			}
+			
+			
+			//prepare the unit resolution
+			cpyCls=fusion(cls,learnedCls);
+			originalCls=cpyCls.clone();
+			result=unitResolution(cpyCls,originalCls,listeVariable);
+			
+			//if(result==false&&pick==false)
+				//break;
+			
+			//en cas de conflit
+			if(result==false)
+			{
+				//genere la clause de conflit
+				int[] conflict= VariableV2.generateConflictClause(originalCls, listeVariable, decisions);
+				learnedCls=add(learnedCls,conflict);
+				int size= learnedCls.length+cls.length;
+				VariableV2.conflictAnalysis(conflict, size, listeVariable,decisions);
+				pick=false;
+			}
+			else pick=true;
+			
+			
+		}
+		
+		return null;
+		
+		
+	}
+		
+    ////////////////////////////////
+	////////////////////////////////
+	////////////////////////////////
 	
 	
 	
@@ -496,280 +601,6 @@ public class ConstructeurClauseV4 {
 	
 	
 	
-	//return the choosed Variable
-	public int pickBranchingVariable(Variable[] listeVariable)
-	{
-		
-		
-		//for each variable, test if it's already used by interpretation
-		//Search for a potential l
-		for(int i=0; i<listeVariable.length; i++)
-		{
-			
-			if(listeVariable[i].getValue()==-1)
-			{
-				Variable.actualLevel++;
-				listeVariable[i].addToGraph(1, Variable.actualLevel, 0, -1, new Variable[0]);
-				return i;
-			}
-				
-		}
-		return -1;
-		
-	}
-	
-	
-	
-	
-	public int[] CDCL(int[][] cls, int nbVariable, Variable[] listeVariable)
-	{
-		
-		int test=0;
-		boolean result;
-		int[][] learnedCls={};
-		int[][] cpyCls=fusion(cls,learnedCls);
-		int[][] originalCls= cpyCls.clone();
-		
-		result=unitResolution(cpyCls,originalCls,listeVariable);
-		if(result==false)
-			return null;
-		
-		boolean pick=true;
-		int location;
-		
-		int cpt=0;
-		//while(Variable.actualDecision!=listeVariable.length-1&&cpt<10)
-		//while(Variable.actualDecision!=listeVariable.length-1&&lastCheck)
-		while(true)
-		{
-			
-			cpt++;
-			
-			System.out.println("********************************************************");
-			
-			
-			//choose new Variable (not when all the decisions are taken)
-			if(pick&&Variable.actualDecision!=listeVariable.length)
-			{
-//				Variable.afficher(listeVariable);
-				location = pickBranchingVariable(listeVariable);
-				System.out.println("pick a branch: "+listeVariable[location].getVariable());
-			}
-			
-			//prepare the unit resolution
-			cpyCls=fusion(cls,learnedCls);
-			originalCls=cpyCls.clone();
-			result=unitResolution(cpyCls,originalCls,listeVariable);
-			
-			//Breaking loop condition, happen when the unit resolution is correct 
-			//and when all the decision are token
-			if(result==true&&Variable.actualDecision==listeVariable.length)
-			{
-				System.out.println("RESULT OK");
-				break;
-				
-			}
-			
-			/*
-			if(result==false&&Variable.actualDecision==listeVariable.length)
-			{
-				System.out.println("CONFLIT!!");
-				break;
-				
-			}*/
-			
-			
-			////////////
-			//CONFLICT//
-			////////////
-			//Create the new conflict clause, then backtrack
-			if(result==false)
-			{
-				
-				System.out.println("CONFLIT!!");
-				
-				int[] clause = Variable.createConflictClause(originalCls, listeVariable);
-				
-				System.out.println("new conflict clause:");
-				affichetab(clause);
-				System.out.println("interpretation:");
-				Variable.afficheDecision(listeVariable);
-				
-				//add the interpretation to the learned clauses
-				
-				//////////////////////////
-				boolean exist=false;
-				for(int i=0; i<learnedCls.length; i++)
-				{
-					if(clause.length==learnedCls[i].length)
-					{	
-						for(int j=0; j<clause.length; j++)
-						{
-							if(clause[j]!=learnedCls[i][j])
-								break;
-							if(j==clause.length-1)
-								exist=true;
-						}
-					}
-				}
-				if(!exist)
-				///////////////////////////////////
-				learnedCls=add(learnedCls,clause);
-				
-				System.out.println("learned Clauses");
-				this.affiche(learnedCls);
-				
-				
-				//got the clause, got to backtrack now
-				//choose the maximum level from the conflict clause (to backtrack)
-				
-				
-				
-				int maxLevel=Integer.MIN_VALUE;//max level from the conflict clause
-				Variable vRes=null;//variable containing the max level
-				
-				System.out.println("test");
-				
-				//searching for the maxLevel in ConflictClause
-				for(int i=0; i<clause.length-1; i++)
-				{
-					System.out.println(i+":"+clause[i]);
-					Variable v = Variable.find(Math.abs(clause[i]),listeVariable);
-					System.out.println(v.getVariable()+" "+v.getValue()+" "+v.getDecisionLevel()+" "+v.getCut());
-					if(v.getLevel()>maxLevel&&v.getCut()==0&&v.getVariable()!=-1)
-					{
-						System.out.println("ok");
-						maxLevel=v.getLevel();
-						vRes=v;
-						
-					}
-					
-				}
-				
-				//if it's the same level than actualLevel and already flipped, we search for another one
-				//if(!(minLevel==Variable.actualLevel&&vRes.getValue()==0))
-				if(vRes.getValue()==1)	
-					Variable.actualLevel=maxLevel;
-				
-				//search for another one (last value=true with cut=0)
-				else
-				{
-					int lastdecision=-1;
-					//search for last 1 with cut=0
-					for(int i=0; i<listeVariable.length; i++)
-					{
-						if(listeVariable[i].getValue()==1&&listeVariable[i].getDecisionLevel()>lastdecision
-								&&listeVariable[i].getDecisionLevel()!=Variable.actualLevel)
-						{	
-							lastdecision=listeVariable[i].getDecisionLevel();
-							vRes=listeVariable[i];
-						}
-						
-					}
-					Variable.actualLevel=lastdecision;
-					
-				}
-				
-				
-				//change interpretation
-				int nbRemoved=Variable.restartVariable(listeVariable, Variable.actualLevel);
-				System.out.println("restart variable"+Variable.actualLevel);
-				Variable.afficher(listeVariable);
-				
-				
-				System.out.println("nombre suppr!!"+nbRemoved);
-				Variable.MAJActualDecision(listeVariable);
-				System.out.println(Variable.actualDecision);
-				Variable.afficheDecision(listeVariable);
-				
-				
-				
-				
-				///////////////////////////
-				
-				/*
-				
-				Variable vRes=null;
-				
-				//search for the last max
-				for(int i=0; i<listeVariable.length; i++)
-				{
-					if(listeVariable[i].getValue()==1
-							&&listeVariable[i].getCut()==0)
-					{	
-						vRes=listeVariable[i];
-						Variable.actualLevel=vRes.getDecisionLevel();
-					}
-						
-				}
-				
-				Variable.restartVariable(listeVariable, Variable.actualLevel);
-				
-				System.out.println("vRes");
-				Variable.afficher(vRes);
-				
-				
-				for(int i=0; i<listeVariable.length; i++)
-				{
-					if(listeVariable[i].getDecisionLevel()==Variable.actualLevel
-							&&listeVariable[i].getCut()==0)
-						vRes=listeVariable[i];
-				}
-				
-				
-				//flip the atom
-				if(vRes.getValue()==1)
-				{
-					System.out.println("flip!!");
-					vRes.setValue(0);
-					pick=false;
-					System.out.println("vRes");
-					Variable.afficher(vRes);
-					
-				}
-				
-				
-				
-				else pick=true;
-				
-				*/
-				///////////////////////////
-				
-				
-				
-				
-				//flip the atom
-				System.out.println("flip the atom");
-				if(vRes.getValue()==-1) return null;
-				else if(vRes.getValue()==0)vRes.setValue(1);
-				else if(vRes.getValue()==1)vRes.setValue(0);
-				System.out.println(vRes.getVariable()+ " value: "+vRes.getValue());
-				pick=false;
-				
-				
-				
-				System.out.println("new interpretation");
-				Variable.afficheDecision(listeVariable);
-				
-				
-				
-			}
-			else
-				pick=true;
-			
-			Variable.MAJActualDecision(listeVariable);
-		}
-		
-		System.out.println(Variable.actualDecision);
-		System.out.println(listeVariable.length);
-		
-		System.out.println("FIN!!");
-		Variable.afficheDecision(listeVariable);
-		return null;
-		
-	}
-	
-	
 	public static void affichetab(int[] t)
 	{
 		for(int i=0; i<t.length; i++)
@@ -799,35 +630,6 @@ public class ConstructeurClauseV4 {
 		newTab[tab.length]=elt;
 		return newTab;
 	}
-	
-	
-	//check if every clauses has a size of 2 or less ("literal" "0")
-	//also check that there are no literal and -literal in the expression
-	public boolean isSatisfiable(int[][] cls)
-	{
-		for(int i=0; i<cls.length;i++)
-		{
-			if(cls[i].length>2)
-			{
-				return false;
-			}
-			
-		}
-		
-		//check if no litteral and -litteral
-		//from here, we're sure there is at most 1 literal in the clauses
-		for(int i=0; i<cls.length;i++)
-		{
-			for(int j=i;j<cls[i].length;j++)
-			{
-				if(cls[i][0]==-cls[j][0])
-					return false;
-			}
-		}
-		
-		return true;
-	}
-	
 
 	
 	
@@ -858,12 +660,22 @@ public class ConstructeurClauseV4 {
 	}
 	
 	public static void main(String[] args) {
-		//ConstructeurClauseV4 c = new ConstructeurClauseV4("aim-50-1_6-no-1.cnf");
-		ConstructeurClauseV4 c = new ConstructeurClauseV4("uf20-01.cnf");
-		//ConstructeurClauseV4 c = new ConstructeurClauseV4("exemple6.cnf");
-		//ConstructeurClauseV4 c = new ConstructeurClauseV4("queen.cnf");
+		///////////////////
+		//SATISFIABLE//////
+		///////////////////
 		
-			
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf20-02.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf50-01.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("queen.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("flat150-1.cnf");
+		
+		///////////////////
+		//UNSATISFIABLE////
+		///////////////////
+
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("aim-50-1_6-no-2.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("exemple2.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("dubois20.cnf");
 		
 	}
 	

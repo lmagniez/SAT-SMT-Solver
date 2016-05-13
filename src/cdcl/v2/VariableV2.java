@@ -131,6 +131,31 @@ public class VariableV2 {
 	}
 
 	
+	public static void searchUIP(Vector<VariableV2> liste)
+	{
+		//get the position of the last decision
+		int pos=liste.size()-2;
+		while(liste.get(pos).getCut()!=0)
+			pos--;
+		
+		if(pos==liste.size()-2)return;
+		
+		//search an UIP from that decision
+		for(int i=pos+1; i<liste.size()-2; i++)
+		{
+			
+			if(liste.get(i).getCut()!=liste.get(i-1).getCut()
+					&&liste.get(i).getCut()!=liste.get(i+1).getCut())
+			{
+				//found the uip
+				while(liste.size()!=i+1)
+					liste.remove(liste.size()-1);
+				return;
+			}
+		}
+		return;
+		
+	}
 	
 	public static int[] generateConflictClause (int[][] cls, VariableV2[] v, Vector<VariableV2> liste)
 	{
@@ -139,6 +164,8 @@ public class VariableV2 {
 		///////////////////////////
 		//GENERATION DE LA CLAUSE//
 		///////////////////////////
+		
+		searchUIP(liste);
 		
 		System.out.println("taille "+ liste.size());
 		

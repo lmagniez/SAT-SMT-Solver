@@ -17,7 +17,7 @@ public class ConstructeurClauseV5 {
 	private int nbClause;
 	private int nbVariable;
 	private int[] listeVariable;
-	private static Vector<VariableV2> decisions = new Vector<VariableV2>();
+	protected static Vector<VariableV2> decisions = new Vector<VariableV2>();
 	
 	
 	public ConstructeurClauseV5(String nomFichier)
@@ -143,6 +143,26 @@ public class ConstructeurClauseV5 {
 		  }
 		  return data;
 	}
+	
+	public int[] trierClause(int[] data)
+	{
+		  int lenD = data.length-1;
+		  int j = 0;
+		  int tmp = 0;
+		  for(int i=0;i<lenD;i++){
+		    j = i;
+		    for(int k = i;k<lenD;k++){
+		      if(Math.abs(data[j])>Math.abs(data[k])){
+		        j = k;
+		      }
+		    }
+		    tmp = data[i];
+		    data[i] = data[j];
+		    data[j] = tmp;
+		  }
+		  return data;
+	}
+	
 	
 	public static boolean unitResolution(int[][] cls, int[][] originalCls, VariableV2[] v)
 	{
@@ -340,13 +360,13 @@ public class ConstructeurClauseV5 {
 				}
 				found=true;
 				
-				cut++;//increment each time find cls
+				
 			}
 			
 			
 			VariableV2.afficheDecision(v);
 			System.out.println("found:"+found);
-			
+			cut++;
 		}while(found);
 		
 		return true;
@@ -470,11 +490,15 @@ public class ConstructeurClauseV5 {
 		if(result==false)
 			return null;
 		
-		
+		int cpt=0;
+		//while(nextBranchingVariable(listeVariable)!=null && cpt<22)
 		while(nextBranchingVariable(listeVariable)!=null)
 		{
+			cpt++;
 			System.out.println("conflits appris");
+			
 			affiche(learnedCls);
+			VariableV2.afficher(listeVariable);
 			
 			if(pick)
 			{
@@ -491,6 +515,13 @@ public class ConstructeurClauseV5 {
 			originalCls=cpyCls.clone();
 			result=unitResolution(cpyCls,originalCls,listeVariable);
 			
+			System.out.println("LES DECISIONS");
+			for(int i=0; i<decisions.size(); i++)
+			{
+				VariableV2.afficher(decisions.get(i));
+			}
+			System.out.println("////////////////////////");
+				
 			//if(result==false&&pick==false)
 				//break;
 			
@@ -499,6 +530,7 @@ public class ConstructeurClauseV5 {
 			{
 				//genere la clause de conflit
 				int[] conflict= VariableV2.generateConflictClause(originalCls, listeVariable, decisions);
+				conflict=trierClause(conflict);
 				learnedCls=add(learnedCls,conflict);
 				int size= learnedCls.length+cls.length;
 				VariableV2.conflictAnalysis(conflict, size, listeVariable,decisions);
@@ -665,7 +697,7 @@ public class ConstructeurClauseV5 {
 		///////////////////
 		
 		//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf20-02.cnf");
-		//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf50-01.cnf");
+		ConstructeurClauseV5 c = new ConstructeurClauseV5("uf50-01.cnf");
 		//ConstructeurClauseV5 c = new ConstructeurClauseV5("queen.cnf");
 		//ConstructeurClauseV5 c = new ConstructeurClauseV5("flat150-1.cnf");
 		

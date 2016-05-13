@@ -100,8 +100,11 @@ public class VariableV2 {
 	}
 	
 	//put to 0 every Variable up to the decision level
-	public static int restartVariable(VariableV2[] v, int decisionLevel)
+	public static int restartVariable(VariableV2[] v, int decisionLevel, Vector<VariableV2> liste)
 	{
+		while(!liste.isEmpty()&&liste.get(liste.size()-1).getDecisionLevel()!=decisionLevel)
+			liste.remove(liste.get(liste.size()-1));
+		
 		System.out.println("decide" + decisionLevel);
 		int cpt=0;
 		for(int i=0; i<v.length; i++)
@@ -206,7 +209,7 @@ public class VariableV2 {
 		//backtrack to k
 		System.out.println("backtrack to "+k);
 		VariableV2.actualLevel=k;
-		restartVariable(v, k);
+		restartVariable(v, k, ConstructeurClauseV5.decisions);
 		if(VariableV2.actualLevel==-1)VariableV2.actualLevel=1;
 		
 		
@@ -233,6 +236,7 @@ public class VariableV2 {
 		
 		
 		
+		//VariableV2.actualLevel++;
 		//add v0
 		v0.decisionLevel=VariableV2.actualLevel;
 		if(cls[1][0]>0)

@@ -171,7 +171,6 @@ public class ConsoleSMT {
 								int cpt=0;
 								while(cpt!=0)
 								{
-									System.out.println("com " +commande[i]);
 									if(commande[i].charAt(commande[i].length()-1)==')')cpt--;
 									if(commande[i].charAt(0)=='(')cpt++;
 									
@@ -187,7 +186,6 @@ public class ConsoleSMT {
 						if(e1!=null)
 						{
 							//variable
-							System.out.println(commande[pose2]);
 							
 							if(commande[pose2].charAt(0)!='(')
 							{
@@ -242,7 +240,6 @@ public class ConsoleSMT {
 			return null;
 		}
 		f=(Function) f.clone();
-		System.out.println(f);
 		Vector<Element> args = new Vector<Element>();
 		
 		boolean end=false;
@@ -254,12 +251,11 @@ public class ConsoleSMT {
 			//function
 			if(commande[i].charAt(0)=='(')
 			{	
-				System.out.println("ah");
 				Function f2=gererFonction(commande,i);
 				args.add(f2);
+				//go after the function
 				while(commande[i].charAt(commande[i].length()-1)!=')')
 				{	
-					System.out.println(commande[i-1]);
 					i++;
 				}
 				
@@ -269,20 +265,15 @@ public class ConsoleSMT {
 			//variable
 			else
 			{
-				System.out.println(commande[i]);
-				System.out.println(i);
 				if(commande[i].charAt(commande[i].length()-1)==')')
 				{	
-					System.out.println("yes");
 					commande[i]=commande[i].substring(0, commande[i].length()-1);
 					end=true;
-					System.out.println(commande[i]);
 				}
 				
 				//i++;
 				if(isNumeric(commande[i]))
 				{
-					System.out.println("add: "+commande[i]);
 					args.add(new Variable(Integer.parseInt(commande[i]), commande[i], "int"));
 				}
 				else
@@ -295,7 +286,6 @@ public class ConsoleSMT {
 					}
 					else
 					{
-						System.out.println("add");
 						args.add(test);
 					}
 				}
@@ -311,9 +301,6 @@ public class ConsoleSMT {
 		//concordance des types;
 		for(int i=0; i< f.arguments.size(); i++)
 		{
-			System.out.println(i);
-			System.out.println(f.arguments.get(i).type);
-			System.out.println(f.argumentsTypes.get(i));
 			
 			if(!f.arguments.get(i).type.equals(f.argumentsTypes.get(i)))
 			{
@@ -322,7 +309,6 @@ public class ConsoleSMT {
 			}
 		}
 		
-		System.out.println(f);
 		
 		return f;
 		

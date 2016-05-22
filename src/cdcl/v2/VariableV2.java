@@ -50,6 +50,8 @@ public class VariableV2 {
 	
 	public static void afficheDecision(VariableV2[] v)
 	{
+		
+		
 		for(int i=0;i<v.length; i++)
 		{
 			if(v[i].getValue()!=-1)
@@ -60,6 +62,16 @@ public class VariableV2 {
 			}	
 		}
 		System.out.println();
+	}
+	
+	public static int[] getDecision(VariableV2[] v)
+	{
+		int[] decision= new int[v.length];
+		for(int i=0;i<v.length; i++)
+		{
+			decision[i]=v[i].getValue();
+		}
+		return decision;
 	}
 	
 	public static VariableV2 find(int variable, VariableV2[] v)
@@ -109,15 +121,11 @@ public class VariableV2 {
 		int cpt=0;
 		for(int i=0; i<v.length; i++)
 		{
-			if((v[i].decisionLevel==decisionLevel&&v[i].cut==0))
-			{	System.out.println("HELLO THERE "+v[i].getVariable());
-			 	
-			}
+			
 			
 			if((v[i].decisionLevel>decisionLevel)&&v[i].decisionLevel!=-1)
 			//else if(v[i].decisionLevel>=decisionLevel&&v[i].decisionLevel!=-1&&v[i].variable!=-1)
 			{
-				System.out.println(v[i].getVariable());
 				v[i].cut=-1;
 				v[i].antecedants=null;
 				v[i].decisionLevel=-1;
@@ -486,33 +494,6 @@ public class VariableV2 {
 		return this.cut;
 	}
 	
-	public static VariableV2 getLast(VariableV2[] v)
-	{
-		int maxDecision=Integer.MIN_VALUE;
-		int maxCut=Integer.MIN_VALUE;
-		int res=-1;
-		
-		for(int i=0; i<v.length; i++)
-		{
-			if(v[i].variable==-1)
-			{
-				//do nothing
-			}
-			else if(maxDecision<v[i].getLevel())
-			{
-				maxDecision=v[i].getLevel();
-				maxCut=v[i].getCut();
-				res=i;
-			}
-			else if(maxDecision==v[i].getLevel()&&maxCut<v[i].getCut())
-			{
-				maxCut=v[i].getCut();
-				res=i;
-			}
-		}
-		return v[res];
-		
-	}
 	
 	public int getDecisionLevel() {
 		return decisionLevel;

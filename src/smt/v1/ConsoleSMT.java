@@ -69,7 +69,8 @@ public class ConsoleSMT {
 			
 			if(commande[0].equals("check-sat"))
 			{
-				
+				createSetOfClause();
+				checkSat();
 			}
 			System.out.println();
 			
@@ -287,6 +288,51 @@ public class ConsoleSMT {
 		}
 	}
 	
+	public void createSetOfClause()
+	{
+		for(int i=0; i<this.listOfAssert.size(); i++)
+			if(!listOfAssert.get(i).usedForClause)
+			{
+				Clause c = new Clause(listOfAssert.get(i));
+				setOfClause.addClause(c);
+			}
+	}
+	
+	public void checkSat()
+	{
+		int[][] cls;
+		int nbVar=this.listOfAssert.size();
+		Vector<Clause> vec = setOfClause.clauses;
+		
+		
+		cls=new int[vec.size()+1][];
+		cls[0]=new int[1];
+		cls[0][0]=nbVar;
+		
+		//for each clauses
+		for(int i=0; i<vec.size(); i++)
+		{	
+			Vector<Relation> vec2 = vec.get(i).relations;
+			int[] clause = new int[vec2.size()+1];
+			//for each assertions
+			for(int j=0; j<vec2.size(); j++)
+			{
+				clause[j]=vec2.get(j).id;
+			}
+			clause[vec2.size()]=0;
+			cls[i+1]=clause;
+		}
+		
+		this.affiche();
+		System.out.println();
+		this.affiche(cls);
+		System.out.println("ok");
+		
+		ConstructeurClauseV2 c = new ConstructeurClauseV2(cls);
+		
+		
+	}
+	
 	
 	public boolean isNumeric(String s) {
 	    return java.util.regex.Pattern.matches("\\d+", s);
@@ -417,7 +463,7 @@ public class ConsoleSMT {
 		System.out.println("\nlistOfElement");
 		for(int i=0; i<listOfElement.size(); i++)
 		{
-			System.out.println(listOfElement.get(i));
+			System.out.println(listOfElement.get(i).printTypes());
 		}
 		System.out.println("\nlistOfAssertion");
 		for(int i=0; i<listOfAssert.size(); i++)
@@ -454,6 +500,19 @@ public class ConsoleSMT {
 	
 	}
 	
+	//affiche clauses
+	public static void affiche(int[][] cls) {
+		if (cls == null) {
+			System.out.println("clause nulle");
+			return;
+		}
+
+		for (int i = 0; i < cls.length; i++) {
+			for (int j = 0; j < cls[i].length; j++)
+				System.out.print(cls[i][j] + " ");
+			System.out.println("");
+		}
+	}
 	
 	public static void main(String[] args) throws CloneNotSupportedException {
 		ConsoleSMT console = new ConsoleSMT();

@@ -36,6 +36,10 @@ public class Element implements Cloneable{
 	{
 		return "";
 	}
+	public String printTypes()
+	{
+		return "";
+	}
 	
 	
 	

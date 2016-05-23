@@ -16,6 +16,13 @@ public class Clause {
 		this.relations = r;
 	}
 
+	public Clause(Relation r)
+	{
+		Vector<Relation> vec = new Vector<Relation>();
+		vec.add(r);
+		this.relations = vec;
+	}
+	
 	@Override
 	public String toString() {
 		

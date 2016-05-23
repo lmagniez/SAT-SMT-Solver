@@ -23,6 +23,13 @@ public class Variable extends Element{
 		+ "]";
 	}
 	
+	public String printTypes()
+	{
+		String res="";
+		res+=name+" type: "+type;
+		return res;
+	}
+	
 	@Override
 	public String toString() {
 		

@@ -4,7 +4,7 @@ import java.util.Vector;
 
 public class SetOfClause {
 
-	private Vector<Clause> clauses;
+	protected Vector<Clause> clauses;
 	
 	public SetOfClause()
 	{

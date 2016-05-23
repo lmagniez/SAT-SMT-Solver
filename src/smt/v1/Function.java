@@ -9,6 +9,7 @@ public class Function extends Element implements Cloneable{
 	Vector<String> argumentsTypes;
 	
 	public Function(Vector<String> v, String returnT, String name)
+
 	{
 		super(name,returnT);
 		arguments=new Vector<Element>();
@@ -28,13 +29,30 @@ public class Function extends Element implements Cloneable{
 		
 	}
 
+
+	public String printTypes()
+	{
+		String res;
+		res = name+"(";
+		for(int i=0; i<argumentsTypes.size(); i++)
+		{
+			res=res+argumentsTypes.get(i).toString();
+			if(i+1<argumentsTypes.size())
+				res+=" ";
+		}
+		res+=")";
+		res+=" return: "+type;
+		
+		
+		return res;
+	}
+	
 	@Override
 	public String toString() {
 		/*return "Function [arguments=" + arguments + ", name=" + name
 				+ ", argumentsTypes=" + argumentsTypes + ", returnType="
 				+ type + "]";
 		*/
-		
 		String res;
 		res = name+"(";
 		for(int i=0; i<arguments.size(); i++)

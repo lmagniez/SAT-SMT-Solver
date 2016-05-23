@@ -77,8 +77,6 @@ public class ConstructeurClauseV2 {
 			}
 		}
 		
-		//affiche(clauses);
-		System.out.println(clauses.length);
 		
 		int[] partialI = createPartialInterpretation(clauses);
 		//System.out.println("result: "+DPLL(clauses, partialI, 0));
@@ -100,6 +98,28 @@ public class ConstructeurClauseV2 {
 		
 		
 		
+	}
+	
+	public ConstructeurClauseV2(int[][] clauses)
+	{
+			
+			int[] partialI = createPartialInterpretation(clauses);
+			//System.out.println("result: "+DPLL(clauses, partialI, 0));
+			int[] res = DPLL(clauses);
+			
+			if(res==null)
+				System.out.println("UNSATISFIABLE");
+			else
+			{
+				System.out.println("SATISFIABLE");
+				
+				res=this.selectionSort(res);
+				
+				System.out.println("\n\n\nRESULTAT (taille:"+res.length+")");
+				for(int i=0; i<res.length; i++)
+					System.out.print(res[i]+" ");
+				System.out.println("");
+			}
 	}
 	
 	
@@ -160,9 +180,6 @@ public class ConstructeurClauseV2 {
 	
 	public static int[][] unitPropagation(int literal, int[][] cls)
 	{	
-		System.out.println("\nunitPropagation: literal: "+literal);
-		
-		
 		int[][] clausesTMP=cls;
 		
 		//remove one variable
@@ -211,10 +228,6 @@ public class ConstructeurClauseV2 {
 			}
 			
 		}
-		
-		System.out.println("cls après traitement");	
-		affiche(cls);
-		System.out.println("*********\n\n");
 		
 		return clausesTMP;
 		
@@ -308,9 +321,11 @@ public class ConstructeurClauseV2 {
 		int[][] newCNF = result[1];
 		if(isEmpty(newCNF))
 		{
+			/*
 			for(int i=0;i<I.length;i++)
 				System.out.println(I[i]+" ");
 			System.out.println();
+			*/
 			return I;
 		}
 		//choose a literal p 
@@ -323,7 +338,6 @@ public class ConstructeurClauseV2 {
 				cpt++;
 			p[0]=cls[cpt][0];
 			
-			System.out.println("newCNF: "+newCNF[0][0]);
 			
 			int[][] CNFToTest = fusion2(newCNF,p[0]);
 			int[][] CNFToTest2 = fusion2(newCNF,-p[0]);

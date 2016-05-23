@@ -371,6 +371,8 @@ public class ConstructeurClauseV3 {
 			System.out.println("ITERATION: "+cpt2);
 			cpt2++;
 			
+			g.affiche();
+			
 			//if(cls[0][0]<-50)return null;
 			System.out.println("DEBUT DE WHILE");
 			System.out.println("interpretation");
@@ -405,6 +407,8 @@ public class ConstructeurClauseV3 {
 				else
 				{
 					int conflictLevel=g.getNode(g.getNode().length-1).getLevel();
+					
+					
 					
 					int[][] clauses;
 					int assertingLevel = -1;

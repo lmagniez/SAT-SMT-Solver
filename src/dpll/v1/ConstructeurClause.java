@@ -86,6 +86,18 @@ public class ConstructeurClause {
 		//System.out.println("result: "+DPLL(clauses, partialI, 0));
 		DPLL(clauses, partialI, 0);
 		
+		System.out.println("\n\nSOLUTIONS\n");
+		
+		for(int i=0; i<this.solutions.size(); i++)
+		{
+			for(int j=0; j<solutions.get(i).length; j++)
+			{
+				System.out.print(solutions.get(i)[j]+" ");
+			}
+			System.out.println();
+		}
+		
+		
 	}
 	
 	
@@ -97,7 +109,7 @@ public class ConstructeurClause {
 	
 	public static int[][] unitPropagation(int literal, int[][] cls)
 	{	
-		System.out.println("\nunitPropagation: literal: "+literal);
+		//System.out.println("\nunitPropagation: literal: "+literal);
 		
 		
 		int[][] clausesTMP=cls;
@@ -149,9 +161,9 @@ public class ConstructeurClause {
 			
 		}
 		
-		System.out.println("cls après traitement");	
-		affiche(cls);
-		System.out.println("*********\n\n");
+		//System.out.println("cls après traitement");	
+		//affiche(cls);
+		//System.out.println("*********\n\n");
 		
 		return clausesTMP;
 		
@@ -306,6 +318,7 @@ public class ConstructeurClause {
 		
 		//CHECKER SI ON A UNE EXPRESSION STABLE
 		int p=0;
+		System.out.println("test ");
 		if(isSatisfiable(cls))
 		{
 			System.out.println("Just found a satisfiable solution!");
@@ -370,15 +383,19 @@ public class ConstructeurClause {
 			
 		}
 		
+		
 		//check if no litteral and -litteral
 		//from here, we're sure there is at most 1 literal in the clauses
 		for(int i=0; i<cls.length;i++)
 		{
-			for(int j=i;j<cls[i].length;j++)
-			{
-				if(cls[i][0]==-cls[j][0])
-					return false;
-			}
+			if(cls[i][0]!=0)
+				for(int j=i;j<cls[i].length;j++)
+				{
+					if(cls[i][0]==-cls[j][0])
+					{
+						return false;
+					}
+				}
 		}
 		
 		return true;
@@ -438,8 +455,10 @@ public class ConstructeurClause {
 	
 	
 	public static void main(String[] args) {
-		ConstructeurClause c = new ConstructeurClause("exemple6.cnf");
-		
+		ConstructeurClause c = new ConstructeurClause("uf20-01.cnf");
+				//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf20-01.cnf");
+				//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf50-01.cnf");
+				// ConstructeurClauseV5 c = new ConstructeurClauseV5("queen.cnf");
 			
 		
 	}

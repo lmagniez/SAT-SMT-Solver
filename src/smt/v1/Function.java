@@ -21,14 +21,33 @@ public class Function extends Element implements Cloneable{
 	}
 	
 	
-
-	
-
-	@Override
-	public String toString() {
+	public String affiche() {
 		return "Function [arguments=" + arguments + ", name=" + name
 				+ ", argumentsTypes=" + argumentsTypes + ", returnType="
 				+ type + "]";
+		
+	}
+
+	@Override
+	public String toString() {
+		/*return "Function [arguments=" + arguments + ", name=" + name
+				+ ", argumentsTypes=" + argumentsTypes + ", returnType="
+				+ type + "]";
+		*/
+		
+		String res;
+		res = name+"(";
+		for(int i=0; i<arguments.size(); i++)
+		{
+			res=res+arguments.get(i).toString();
+			if(i+1<arguments.size())
+				res+=" ";
+		}
+		res+=")";
+		
+		
+		return res;
+		
 	}
 
 

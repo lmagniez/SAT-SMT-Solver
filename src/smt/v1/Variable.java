@@ -17,10 +17,16 @@ public class Variable extends Element{
 		value=v;
 	}
 
+	public String affiche()
+	{
+		return "Variable [value=" + value + ", name=" + name + ", type=" + type
+		+ "]";
+	}
+	
 	@Override
 	public String toString() {
-		return "Variable [value=" + value + ", name=" + name + ", type=" + type
-				+ "]";
+		
+		return name;
 	}
 
 	

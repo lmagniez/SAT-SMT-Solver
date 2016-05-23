@@ -13,7 +13,12 @@ public class SetOfClause {
 
 	public void addClause(Clause c)
 	{
+		for(int i=0; i<c.relations.size(); i++)
+		{
+			c.relations.get(i).usedForClause=true;
+		}
 		clauses.add(c);
+		
 	}
 	
 	public void removeClause(Clause c)
@@ -25,5 +30,21 @@ public class SetOfClause {
 	{
 		clauses.remove(i);
 	}
+
+	@Override
+	public String toString() {
+		String res="(";
+		for (int i=0; i<clauses.size(); i++)
+		{
+			res+=clauses.get(i).toString();
+			if(i+1<clauses.size())
+				res+=") + (";
+		}
+		res+=")";
+		return res;
+	}
+	
+	
+	
 	
 }

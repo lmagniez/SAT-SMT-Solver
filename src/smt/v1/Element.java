@@ -32,6 +32,11 @@ public class Element implements Cloneable{
 		return "Element [name=" + name + ", type=" + type + "]";
 	}
 	
+	public String affiche()
+	{
+		return "";
+	}
+	
 	
 	
 	

@@ -34,84 +34,13 @@ public class ConsoleSMT {
 			//declare-const a Int
 			if(commande[0].equals("declare-const"))
 			{
-				if(commande.length<3)
-					System.out.println("SYNTAX ERROR");
-				else
-				{
-					if(!commande[2].toLowerCase().equals("int"))
-						System.out.println("SYNTAX ERROR2"+commande[2].toLowerCase());
-					else
-					{
-						if(exist(commande[1]))
-							System.out.println("ERROR: Name already used");
-						else
-						{
-							listOfName.add(commande[1]);
-							listOfElement.addElement(new Variable(commande[1],"int"));
-						}
-					}
-				}
+				declareConst(commande);
 			}
 			
 			//declare-fun f (Int Bool) Int
 			if(commande[0].equals("declare-fun"))
 			{
-				if(commande.length<4)
-					System.out.println("SYNTAX ERROR");
-				else
-				{
-					
-					if(commande[2].charAt(0)=='(')
-					{
-						//add the arguments
-						Vector<String> args= new Vector<String>();
-						String tmp;
-						commande[2]=commande[2].substring(1, commande[2].length());
-						
-						int i = 2;
-						//search for the ')'
-						while(commande[i].charAt(commande[i].length()-1)!=')'&&i<commande.length)
-						{
-							if(commande[i].toLowerCase().equals("int"))
-								args.add(commande[i]);
-							else System.out.println("SYNTAX ERROR1");
-							i++;
-						}
-						
-						//get the ')'
-						tmp=commande[i].substring(0, commande[i].length()-1);
-						if(tmp.toLowerCase().equals("int"))
-						{
-							args.add(tmp);
-							
-							//get type of return 
-							String tReturn=commande[i+1];
-							if(!commande[i+1].toLowerCase().equals("int"))
-								System.out.println("SYNTAX ERROR3");
-							else 
-							{						
-								//name already exist?
-								if(exist(commande[1]))
-									System.out.println("ERROR: Name already used");
-								else
-								{
-									listOfName.add(commande[1]);
-									listOfElement.addElement(new Function(args, tReturn, commande[1]));
-								}	
-							}
-						}
-						
-						else System.out.println("SYNTAX ERROR2");
-						
-						
-						
-						
-					}
-					else
-					{
-						System.out.println("SYNTAX ERROR");
-					}
-				}
+				declareFun(commande);
 				
 			}
 			
@@ -120,103 +49,244 @@ public class ConsoleSMT {
 			//assert < (f a 2) 100
 			if(commande[0].equals("assert"))
 			{
-				if(commande.length<4)
-					System.out.println("SYNTAX ERROR");
-				else
-				{
-					int relation=-10;
-					Element e1 = null;
-					Element e2 = null;
-					
-					if(commande[1].equals("="))
-						relation=0;
-					else if(commande[1].equals("!="))
-						relation=10;
-					else if(commande[1].equals(">"))
-						relation=1;
-					else if(commande[1].equals(">="))
-						relation=2;
-					else if(commande[1].equals("<"))
-						relation=-1;
-					else if(commande[1].equals("<="))
-						relation=-2;
-					
-					if(relation==-10)
-						System.out.println("SYNTAX ERROR");
-					else
-					{
-						int pose2=3;
-						
-						///////////
-						//  e1   //
-						///////////
-						
-						//may be variable, number, or function
-						//variable
-						if(commande[2].charAt(0)!='(')
-						{
-							if(isNumeric(commande[2]))
-								e1 = new Variable(Integer.parseInt(commande[2]), commande[2], "int");
-							else
-								e1=findByName(commande[2]);
-								
-						}
-						//function
-						else
-						{
-							e1 = gererFonction(commande, 2);
-							if(e1!=null)
-							{	
-								int i=2;
-								int cpt=0;
-								while(cpt!=0)
-								{
-									if(commande[i].charAt(commande[i].length()-1)==')')cpt--;
-									if(commande[i].charAt(0)=='(')cpt++;
-									
-									i++;
-								}
-								pose2=i+1;
-							}
-						}
-						
-						/////////////
-						//	e2	   //
-						/////////////
-						if(e1!=null)
-						{
-							//variable
-							
-							if(commande[pose2].charAt(0)!='(')
-							{
-								if(isNumeric(commande[pose2]))
-									e2 = new Variable(Integer.parseInt(commande[pose2]), commande[pose2], "int");
-								else
-									e2=findByName(commande[pose2]);		
-							}
-							//function
-							else
-							{
-								e2 = gererFonction(commande, pose2);
-							}
-						}
-						
-					}
-					if(e1==null||e2==null)
-						System.out.println("SYNTAX ERROR |");
-					else
-						listOfAssert.addElement(new Relation(e1, e2, relation));
-				}
+				assertion(commande);
 			}
+			
+			//declare-clause 1 2
+			//declare-clause -1 2
+			//declare-clause 1 2 3
+			if(commande[0].equals("declare-clause"))
+			{
+				declareClause(commande);
+			}
+			
+			
 			
 			if(commande[0].equals("print"))
 				affiche();
+			if(commande[0].equals("print2"))
+				affiche2();
 			
+			if(commande[0].equals("check-sat"))
+			{
+				
+			}
 			System.out.println();
 			
 			
 		}
 	}
+	
+	public void declareConst(String[] commande)
+	{
+		if(commande.length<3)
+			System.out.println("SYNTAX ERROR");
+		else
+		{
+			if(!commande[2].toLowerCase().equals("int"))
+				System.out.println("SYNTAX ERROR2"+commande[2].toLowerCase());
+			else
+			{
+				if(exist(commande[1]))
+					System.out.println("ERROR: Name already used");
+				else
+				{
+					listOfName.add(commande[1]);
+					listOfElement.addElement(new Variable(commande[1],"int"));
+				}
+			}
+		}
+	}
+	
+	public void declareFun(String[] commande)
+	{
+		if(commande.length<4)
+			System.out.println("SYNTAX ERROR");
+		else
+		{
+			
+			if(commande[2].charAt(0)=='(')
+			{
+				//add the arguments
+				Vector<String> args= new Vector<String>();
+				String tmp;
+				commande[2]=commande[2].substring(1, commande[2].length());
+				
+				int i = 2;
+				//search for the ')'
+				while(commande[i].charAt(commande[i].length()-1)!=')'&&i<commande.length)
+				{
+					if(commande[i].toLowerCase().equals("int"))
+						args.add(commande[i]);
+					else System.out.println("SYNTAX ERROR1");
+					i++;
+				}
+				
+				//get the ')'
+				tmp=commande[i].substring(0, commande[i].length()-1);
+				if(tmp.toLowerCase().equals("int"))
+				{
+					args.add(tmp);
+					
+					//get type of return 
+					String tReturn=commande[i+1];
+					if(!commande[i+1].toLowerCase().equals("int"))
+						System.out.println("SYNTAX ERROR3");
+					else 
+					{						
+						//name already exist?
+						if(exist(commande[1]))
+							System.out.println("ERROR: Name already used");
+						else
+						{
+							listOfName.add(commande[1]);
+							listOfElement.addElement(new Function(args, tReturn, commande[1]));
+						}	
+					}
+				}
+				
+				else System.out.println("SYNTAX ERROR2");
+				
+				
+				
+				
+			}
+			else
+			{
+				System.out.println("SYNTAX ERROR");
+			}
+		}
+	}
+	
+	public void assertion(String[] commande) throws CloneNotSupportedException
+	{
+		if(commande.length<4)
+			System.out.println("SYNTAX ERROR");
+		else
+		{
+			int relation=-10;
+			Element e1 = null;
+			Element e2 = null;
+			
+			if(commande[1].equals("="))
+				relation=0;
+			else if(commande[1].equals("!="))
+				relation=10;
+			else if(commande[1].equals(">"))
+				relation=1;
+			else if(commande[1].equals(">="))
+				relation=2;
+			else if(commande[1].equals("<"))
+				relation=-1;
+			else if(commande[1].equals("<="))
+				relation=-2;
+			
+			if(relation==-10)
+				System.out.println("SYNTAX ERROR");
+			else
+			{
+				int pose2=3;
+				
+				///////////
+				//  e1   //
+				///////////
+				
+				//may be variable, number, or function
+				//variable
+				if(commande[2].charAt(0)!='(')
+				{
+					if(isNumeric(commande[2]))
+						e1 = new Variable(Integer.parseInt(commande[2]), commande[2], "int");
+					else
+						e1=findByName(commande[2]);
+						
+				}
+				//function
+				else
+				{
+					e1 = this.gererFonction(commande, 2);
+					if(e1!=null)
+					{	
+						int i=2;
+						int cpt=0;
+						while(cpt!=0)
+						{
+							if(commande[i].charAt(commande[i].length()-1)==')')cpt--;
+							if(commande[i].charAt(0)=='(')cpt++;
+							
+							i++;
+						}
+						pose2=i+1;
+					}
+				}
+				
+				/////////////
+				//	e2	   //
+				/////////////
+				if(e1!=null)
+				{
+					//variable
+					
+					if(commande[pose2].charAt(0)!='(')
+					{
+						if(isNumeric(commande[pose2]))
+							e2 = new Variable(Integer.parseInt(commande[pose2]), commande[pose2], "int");
+						else
+							e2=findByName(commande[pose2]);		
+					}
+					//function
+					else
+					{
+						e2 = gererFonction(commande, pose2);
+					}
+				}
+				
+			}
+			if(e1==null||e2==null)
+				System.out.println("SYNTAX ERROR |");
+			else
+			{
+				Relation r = new Relation(e1, e2, relation);
+				listOfAssert.addElement(r);
+				System.out.println("nouvelle relation, id: " + r.id);
+			}
+		}
+	}
+	
+	public void declareClause(String[] commande)
+	{
+		if(commande.length<3)
+		{
+			System.out.println("SYNTAX ERROR");
+		}
+		else
+		{
+			Vector<Relation> listeRelation= new Vector<Relation>();
+			boolean add=true;
+			for(int i=1; i<commande.length; i++)
+			{
+				if(this.isNumeric(commande[i]))
+				{	
+					int id = Integer.parseInt(commande[i]);
+					Relation r = Relation.findById(this.listOfAssert, Math.abs(id));
+					listeRelation.add(r);
+				}
+				else
+				{
+					System.out.println("SYNTAX ERROR");
+					add=false;
+					break;
+				}
+			}
+			if(add)
+			{
+				this.setOfClause.addClause(new Clause(listeRelation));
+			}
+			
+			
+		}
+	}
+	
 	
 	public boolean isNumeric(String s) {
 	    return java.util.regex.Pattern.matches("\\d+", s);
@@ -335,6 +405,8 @@ public class ConsoleSMT {
 		return null;
 	}
 	
+	
+	
 	public void affiche()
 	{
 		System.out.println("listOfName");
@@ -342,16 +414,43 @@ public class ConsoleSMT {
 		{
 			System.out.println(listOfName.get(i));
 		}
-		System.out.println("listOfElement");
+		System.out.println("\nlistOfElement");
 		for(int i=0; i<listOfElement.size(); i++)
 		{
 			System.out.println(listOfElement.get(i));
 		}
-		System.out.println("listOfAssertion");
+		System.out.println("\nlistOfAssertion");
 		for(int i=0; i<listOfAssert.size(); i++)
 		{
-			System.out.println(listOfAssert.get(i));
+			String space="";
+			if(listOfAssert.get(i).id>=0)
+				space=" ";
+			System.out.println("id: "+space+listOfAssert.get(i).id+ " " +listOfAssert.get(i));
 		}
+		System.out.println("\nlistOfClause");
+		System.out.println(setOfClause);
+	
+	}
+	
+	public void affiche2()
+	{
+		System.out.println("listOfName");
+		for(int i=0; i<listOfName.size(); i++)
+		{
+			System.out.println(listOfName.get(i));
+		}
+		System.out.println("\nlistOfElement");
+		for(int i=0; i<listOfElement.size(); i++)
+		{
+			System.out.println(listOfElement.get(i).affiche());
+		}
+		System.out.println("\nlistOfAssertion");
+		for(int i=0; i<listOfAssert.size(); i++)
+		{
+			System.out.println(listOfAssert.get(i).affiche());
+		}
+		System.out.println("\nlistOfClause");
+		System.out.println(setOfClause);
 	
 	}
 	

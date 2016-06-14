@@ -839,10 +839,10 @@ public class ConstructeurClauseV4 {
 	}
 	
 	public static void main(String[] args) {
-		//ConstructeurClauseV4 c = new ConstructeurClauseV4("aim-50-1_6-no-1.cnf");
-		ConstructeurClauseV4 c = new ConstructeurClauseV4("uf20-01.cnf");
-		//ConstructeurClauseV4 c = new ConstructeurClauseV4("exemple6.cnf");
-		//ConstructeurClauseV4 c = new ConstructeurClauseV4("queen.cnf");
+		//ConstructeurClauseV4 c = new ConstructeurClauseV4("files/aim-50-1_6-no-1.cnf");
+		ConstructeurClauseV4 c = new ConstructeurClauseV4("files/uf20-01.cnf");
+		//ConstructeurClauseV4 c = new ConstructeurClauseV4("files/exemple6.cnf");
+		//ConstructeurClauseV4 c = new ConstructeurClauseV4("files/queen.cnf");
 		
 			
 		

@@ -707,15 +707,15 @@ public class ConstructeurClauseV3 {
 	}
 	
 	public static void main(String[] args) {
-		//ConstructeurClauseV3 c = new ConstructeurClauseV3("exemple6.cnf");
-		//ConstructeurClauseV3 c = new ConstructeurClauseV3("queen.cnf");
-		ConstructeurClauseV3 c = new ConstructeurClauseV3("uf20-02.cnf");
+		//ConstructeurClauseV3 c = new ConstructeurClauseV3("files/exemple6.cnf");
+		//ConstructeurClauseV3 c = new ConstructeurClauseV3("files/queen.cnf");
+		ConstructeurClauseV3 c = new ConstructeurClauseV3("files/uf20-02.cnf");
 		
 		
-		//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf20-02.cnf");
-		//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf50-02.cnf");
-		//ConstructeurClauseV5 c = new ConstructeurClauseV5("queen.cnf");
-		//ConstructeurClauseV5 c = new ConstructeurClauseV5("flat150-1.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("files/uf20-02.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("files/uf50-02.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("files/queen.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("files/flat150-1.cnf");
 		
 	}
 	

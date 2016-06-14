@@ -418,9 +418,10 @@ public class ConstructeurClauseV2 {
 		}
 	
 	public static void main(String[] args) {
-		//ConstructeurClauseV2 c = new ConstructeurClauseV2("exemple6.cnf");
-		ConstructeurClauseV2 c = new ConstructeurClauseV2("uf50-01.cnf");
-		//ConstructeurClauseV2 c = new ConstructeurClauseV2("aim-50-1_6-no-1.cnf");
+		//ConstructeurClauseV2 c = new ConstructeurClauseV2("files/exemple6.cnf");
+		//ConstructeurClauseV2 c = new ConstructeurClauseV2("files/uf50-01.cnf");
+		ConstructeurClauseV2 c = new ConstructeurClauseV2("files/queen.cnf");
+		//ConstructeurClauseV2 c = new ConstructeurClauseV2("files/aim-50-1_6-no-1.cnf");
 		
 	}
 	

@@ -472,10 +472,10 @@ public class ConstructeurClause {
 	
 	
 	public static void main(String[] args) {
-		ConstructeurClause c = new ConstructeurClause("uf20-01.cnf");
-				//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf20-01.cnf");
-				//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf50-01.cnf");
-				// ConstructeurClauseV5 c = new ConstructeurClauseV5("queen.cnf");
+		ConstructeurClause c = new ConstructeurClause("files/uf20-01.cnf");
+				//ConstructeurClauseV5 c = new ConstructeurClauseV5("files/uf20-01.cnf");
+				//ConstructeurClauseV5 c = new ConstructeurClauseV5("files/uf50-01.cnf");
+				// ConstructeurClauseV5 c = new ConstructeurClauseV5("files/queen.cnf");
 			
 		
 	}

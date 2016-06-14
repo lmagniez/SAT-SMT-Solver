@@ -2,6 +2,12 @@ package cdcl.v1;
 
 import java.util.Vector;
 
+/**
+ * Implication graph component (set of Variable)
+ * @author loick
+ *
+ */
+
 public class Variable {
 
 	public static int actualLevel=0;
@@ -24,6 +30,15 @@ public class Variable {
 		antecedants=null;
 	}
 	
+	/**
+	 * modify assignment for the current variable
+	 * 
+	 * @param value
+	 * @param decisionLevel
+	 * @param cut
+	 * @param w
+	 * @param antecedants
+	 */
 	public void addToGraph(int value, int decisionLevel, int cut, int w, Variable[] antecedants)
 	{
 		this.value=value;
@@ -33,6 +48,10 @@ public class Variable {
 		this.antecedants=antecedants;
 	}
 	
+	/**
+	 * update the actualDecision variable according to the list of Variable
+	 * @param v
+	 */
 	public static void MAJActualDecision(Variable[] v)
 	{
 		int cpt=0;
@@ -44,6 +63,10 @@ public class Variable {
 		actualDecision=cpt;
 	}
 	
+	/**
+	 * printing function for testing
+	 * @param v
+	 */
 	public static void afficheDecision(Variable[] v)
 	{
 		for(int i=0;i<v.length; i++)
@@ -58,6 +81,12 @@ public class Variable {
 		System.out.println();
 	}
 	
+	/**
+	 * Find a variable in a list of Variable according to its name
+	 * @param variable variable name
+	 * @param v list of Variable
+	 * @return Variable if found, else null
+	 */
 	public static Variable find(int variable, Variable[] v)
 	{
 		for(int i=0; i<v.length; i++)
@@ -95,7 +124,13 @@ public class Variable {
 		
 	}
 	
-	//put to 0 every Variable up to the decision level
+	/**
+	 * Backtrack function. Cancel assignment to every Variable up to the decision level (up to cut=0)
+	 * @param v list of variable
+	 * @param decisionLevel decisionLevel where to backtrack
+	 * @param liste stack of variable
+	 * @return
+	 */
 	public static int restartVariable(Variable[] v, int decisionLevel)
 	{
 		System.out.println("decide" + decisionLevel);
@@ -123,7 +158,12 @@ public class Variable {
 		return cpt;
 	}
 	
-	//find variable from decision level with cut=0
+	/**
+	 * find variable from decision level with cut=0
+	 * @param v list of variable
+	 * @param decisionLevel
+	 * @return
+	 */
 	public static Variable findCutZero(Variable[] v, int decisionLevel)
 	{
 		for(int i=0; i<v.length; i++)
@@ -134,6 +174,12 @@ public class Variable {
 		return null;
 	}
 	
+	/**
+	 * create conflict clause according to the set of clause and the list of Variable (need a conflict
+	 * @param cls set of clause
+	 * @param v list of Variable
+	 * @return conflict clause
+	 */
 	public static int[] createConflictClause(int[][] cls, Variable[] v)
 	{
 		int location = searchForUIP(v);
@@ -156,17 +202,7 @@ public class Variable {
 			vect.add(v[location].antecedants[i]);
 			
 		}
-		
-		/*System.out.println("taille vect "+vect.size());
-		for(int i=0; i<vect.size();i++)
-		{
-			Variable[] t = vect.get(0).antecedants;
-			for(int j=0; j<t.length; j++)
-			{
-				if(t[j]!=null)Variable.afficher(t[j]);
-			}
-		}
-		*/
+	
 		
 		System.out.println("ah"+vect);
 /////////////////////////////////////////////////////////////		
@@ -209,8 +245,11 @@ public class Variable {
 	}
 	
 	
-	
-	//return the location of the first UIP (with the 
+	/**
+	 * return the location of the first UIP (with the
+	 * @param v list of Variable 
+	 * @return location of first uip
+	 */ 
 	public static int searchForUIP(Variable[] v)
 	{
 		System.out.println("*************************");
@@ -271,7 +310,12 @@ public class Variable {
 	
 
 	
-	
+	/**
+	 * Fuse together 2 cls to make one (delete l and -l, and double l)
+	 * @param cls1
+	 * @param cls2
+	 * @return new clause 
+	 */
 	public static int[] fuse(int[] cls1, int[] cls2)
 	{
 		
@@ -321,6 +365,12 @@ public class Variable {
 		return clause;
 	}
 	
+	/**
+	 * delete j from tab
+	 * @param tab
+	 * @param j
+	 * @return new tab
+	 */
 	public static int[] deleteFromTab(int[] tab, int j)
 	{
 		System.out.println("delete "+j);

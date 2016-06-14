@@ -5,7 +5,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
+import cdcl.v2.ConstructeurClauseV5;
 
+/**
+ * DPLL V3\n
+ * use implication graph to find conflict clause, and backtrack efficiently
+ * @author loick
+ *
+ */
 public class ConstructeurClauseV3 {
 	
 	private int[][] clauses;
@@ -15,6 +22,10 @@ public class ConstructeurClauseV3 {
 	private Vector<int[]> solutions = new Vector<int[]>();
 	
 	
+	/**
+	 * create the clauses according to cnf file, and perform dpll
+	 * @param nomFichier name of the cnf file to use
+	 */
 	public ConstructeurClauseV3(String nomFichier)
 	{
 		BufferedReader br = null;
@@ -113,7 +124,14 @@ public class ConstructeurClauseV3 {
 		
 	}
 	
-	
+	/**
+	 * while there's unit clause, perform unit propagation \n
+	 * add to the graph when fin unit clause \n
+	 * @param cls the set of clause 
+	 * @param originalCls the same set of clause (original one, do not modify)
+	 * @param v list of Variable
+	 * @return true if ok, false if conflict
+	 */
 	public static int[] unitResolution(int[][] cls, int[][] originalCls, Graph g, int[] interpretation)
 	{
 		
@@ -195,7 +213,7 @@ public class ConstructeurClauseV3 {
 					if(cls==null) return null; //if there is empty clause/conflict
 					
 					//add the new interpretation
-					System.out.println("ajout nouvelles interpretations");
+					//System.out.println("ajout nouvelles interpretations");
 					int[] newInterpretation= new int[interpretation.length+1];
 					for(int j=0; j<interpretation.length; j++)
 						newInterpretation[j]=interpretation[j];
@@ -220,15 +238,18 @@ public class ConstructeurClauseV3 {
 	
 	
 	
-	//delete the entire clauses containing literal (replace by 0) 
-	//delete -literal from all clauses 
-	//may cause empty clause when delete -literal from clause !(return null)
-	
-	//DON'T FORGET TO DELETE THE LITERAL AFTER THE PROPAGATION (DONE)
+	/**
+	 * delete the entire clauses containing literal (replace by 0) \n
+	 * delete -literal from all clauses \n
+	 * may cause empty clause when delete -literal from clause !(return null) \n
+	 * @param literal to propagate
+	 * @param cls set of clause
+	 * @return set of clause after propagation
+	 */
 	
 	public static int[][] unitPropagation(int literal, int[][] cls)
 	{	
-		System.out.println("\nunitPropagation: literal: "+literal);
+		//System.out.println("\nunitPropagation: literal: "+literal);
 		
 		int[][] clausesTMP=cls;
 		
@@ -279,9 +300,9 @@ public class ConstructeurClauseV3 {
 			
 		}
 		
-		System.out.println("cls après traitement");	
+		//System.out.println("cls après traitement");	
 		//affiche(cls);
-		System.out.println("*********");
+		//System.out.println("*********");
 		
 		return clausesTMP;
 		
@@ -353,10 +374,14 @@ public class ConstructeurClauseV3 {
 		}
 	
 	
-	//true -> satisfiable
-	//false -> unsatisfiable
-	
-	//partialInterpretation -> the variable we choosed (T/F) Empty at first
+	/**
+	 * perform DPLL+ algorithm \n
+	 * iterative algorithm using conflict clause, graph and backtracking
+	 * @param cls
+	 * @param nbVariable
+	 * @param listeVariable
+	 * @return
+	 */
 	
 	public int[] DPLL(int[][] cls, int nbVariable, int[] listeVariable)
 	{
@@ -367,6 +392,7 @@ public class ConstructeurClauseV3 {
 		
 		int cpt2=0;
 		while(true)
+		//while(cpt2<10)
 		{
 			System.out.println("ITERATION: "+cpt2);
 			cpt2++;
@@ -498,6 +524,9 @@ public class ConstructeurClauseV3 {
 					
 					//add a 0 at the end of the clause (has to correspond with cnf format
 					conflictDrivenClause=add(conflictDrivenClause,0);
+					System.out.println("conflictDrivenCl");
+					ConstructeurClauseV3.affichetab(conflictDrivenClause);
+					
 					
 					//add the clause
 					cls=add(cls,conflictDrivenClause);
@@ -599,11 +628,6 @@ public class ConstructeurClauseV3 {
 		}
 		
 		
-		
-			
-		 
-		
-		
 	}
 	
 	
@@ -637,7 +661,11 @@ public class ConstructeurClauseV3 {
 		return newTab;
 	}
 	
-	//create an array with only 0 in it
+	/**
+	 * create an array with only 0, having the size equal to number of clause
+	 * @param cls
+	 * @return interpretation
+	 */
 	public int[] createPartialInterpretation(int[][] cls)
 	{
 		int nbVar=cls[0][0];
@@ -679,9 +707,15 @@ public class ConstructeurClauseV3 {
 	}
 	
 	public static void main(String[] args) {
-		ConstructeurClauseV3 c = new ConstructeurClauseV3("exemple6.cnf");
+		//ConstructeurClauseV3 c = new ConstructeurClauseV3("exemple6.cnf");
+		//ConstructeurClauseV3 c = new ConstructeurClauseV3("queen.cnf");
+		ConstructeurClauseV3 c = new ConstructeurClauseV3("uf20-02.cnf");
 		
-			
+		
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf20-02.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf50-02.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("queen.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("flat150-1.cnf");
 		
 	}
 	

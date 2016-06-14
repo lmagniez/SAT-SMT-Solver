@@ -10,6 +10,13 @@ import java.util.Vector;
 
 import cdcl.v1.Variable;
 
+/**
+ * CDCL algorithm, use implication graph \n
+ * new structure -> Stack of Variable 
+ * @author loick
+ *
+ */
+
 public class ConstructeurClauseV5 {
 
 	private int[][] clauses;
@@ -18,6 +25,11 @@ public class ConstructeurClauseV5 {
 	private int[] listeVariable;
 	protected static Vector<VariableV2> decisions = new Vector<VariableV2>();
 
+	
+	/**
+	 * create the clauses according to cnf file, and perform cdcl
+	 * @param nomFichier name of the cnf file to use
+	 */
 	public ConstructeurClauseV5(String nomFichier) {
 
 		BufferedReader br = null;
@@ -112,6 +124,12 @@ public class ConstructeurClauseV5 {
 
 	}
 
+	
+	/**
+	 * Selection sort
+	 * @param data
+	 * @return data sorted
+	 */
 	public int[] selectionSort(int[] data) {
 		int lenD = data.length;
 		int j = 0;
@@ -130,6 +148,11 @@ public class ConstructeurClauseV5 {
 		return data;
 	}
 
+	/**
+	 * sort clause according to the literal name
+	 * @param data
+	 * @return clause sorted
+	 */
 	public int[] trierClause(int[] data) {
 		int lenD = data.length - 1;
 		int j = 0;
@@ -148,6 +171,15 @@ public class ConstructeurClauseV5 {
 		return data;
 	}
 
+	
+	/**
+	 * while there's unit clause, perform unit propagation
+	 * @param cls the set of clause 
+	 * @param originalCls the same set of clause (original one, do not modify)
+	 * @param v list of Variable
+	 * @return true if ok, false if conflict
+	 */
+	
 	public static boolean unitResolution(int[][] cls, int[][] originalCls,
 			VariableV2[] v) {
 
@@ -173,14 +205,7 @@ public class ConstructeurClauseV5 {
 					// create the antecedants for k
 					for (int j = 0; j < originalCls[locationConflict].length - 1; j++) {
 
-						// System.out.println(originalCls[locationConflict].length-1);
-						System.out.println("**");
-						System.out.println(originalCls.length);
-						System.out.println(cls.length);
-						System.out.println(locationConflict);
-						System.out.println(j);
-						System.out.println(i);
-						System.out.println(cpt);
+						
 						if (originalCls[locationConflict][j] != cls[i][0]) {
 							antecedants[cpt] = VariableV2.find(
 									originalCls[locationConflict][j], v);
@@ -203,8 +228,6 @@ public class ConstructeurClauseV5 {
 		if (res != null)
 			cls = res;
 
-		System.out.println("NEW AJOUT");
-		VariableV2.afficheDecision(v);
 
 		// search for unit clauses (clause with only one literal)
 		do {
@@ -212,7 +235,6 @@ public class ConstructeurClauseV5 {
 
 			Vector<Integer> unitList = new Vector<Integer>();
 
-			System.out.println("search again");
 			// look in all the clauses
 			for (int i = 0; i < cls.length; i++) {
 
@@ -269,9 +291,6 @@ public class ConstructeurClauseV5 {
 			// from here, we have all of the unit clauses
 			// unit propagation
 			if (unitList.size() != 0) {
-				System.out.println("unitList");
-				for (int i = 0; i < unitList.size(); i++)
-					System.out.println(unitList.get(i));
 
 				// pour chaque clause unitaire
 				for (int i = 0; i < unitList.size(); i++) {
@@ -285,6 +304,7 @@ public class ConstructeurClauseV5 {
 					// si conflit
 					if (cls.length == 1 && cls[0].length == 1) {
 						System.out.println("conflit");
+						//VariableV2.afficher(v);
 						int cpt = 0;
 						int locationConflict = cls[0][0];
 						
@@ -310,7 +330,7 @@ public class ConstructeurClauseV5 {
 
 			}
 
-			VariableV2.afficheDecision(v);
+			//VariableV2.afficheDecision(v);
 			cut++;
 		} while (found);
 
@@ -318,12 +338,15 @@ public class ConstructeurClauseV5 {
 
 	}
 
-	// delete the entire clauses containing literal (replace by 0)
-	// delete -literal from all clauses
-	// may cause empty clause when delete -literal from clause !(return null)
-
-	// DON'T FORGET TO DELETE THE LITERAL AFTER THE PROPAGATION (DONE)
-
+	/**
+	 * delete the entire clauses containing literal (replace by 0) \n
+	 * delete -literal from all clauses \n
+	 * may cause empty clause when delete -literal from clause !(return null) \n
+	 * @param literal to propagate
+	 * @param cls set of clause
+	 * @return set of clause after propagation
+	 */
+	
 	public static int[][] unitPropagation(int literal, int[][] cls) {
 		// System.out.println("\nunitPropagation: literal: "+literal);
 
@@ -380,7 +403,11 @@ public class ConstructeurClauseV5 {
 
 	}
 
-	// return the choosed Variable
+	/**
+	 * Choose a Variable not used yet
+	 * @param listeVariable list of Variable
+	 * @return the choosed Variable
+	 */
 	public VariableV2 nextBranchingVariable(VariableV2[] listeVariable) {
 
 		// for each variable, test if it's already used by interpretation
@@ -399,6 +426,13 @@ public class ConstructeurClauseV5 {
 
 	}
 
+	/**
+	 * CDCL algorithm
+	 * @param cls set of clause
+	 * @param nbVariable number of variable
+	 * @param listeVariable list of Variable
+	 * @return interpretation if it founds one, null if unsat
+	 */
 	public int[] CDCL(int[][] cls, int nbVariable, VariableV2[] listeVariable) {
 		
 		int test = 0;
@@ -419,11 +453,11 @@ public class ConstructeurClauseV5 {
 		int cpt = 0;
 		// while(nextBranchingVariable(listeVariable)!=null && cpt<22)
 		while (nextBranchingVariable(listeVariable) != null) {
+		
+			
+			
+			
 			cpt++;
-			System.out.println("conflits appris");
-
-			//affiche(learnedCls);
-			//VariableV2.afficher(listeVariable);
 
 			if (pick) {
 				VariableV2.actualLevel++;
@@ -431,7 +465,6 @@ public class ConstructeurClauseV5 {
 				next.addToGraph(1, VariableV2.actualLevel, 0, -1,
 						new VariableV2[0]);
 				decisions.add(next);
-				System.out.println("add: " + next.getVariable());
 			}
 
 			// prepare the unit resolution
@@ -453,35 +486,32 @@ public class ConstructeurClauseV5 {
 				VariableV2.conflictAnalysis(conflict, size, listeVariable,
 						decisions);
 	
-	/*
-	// ////////////////////////////
-				int[] stateVariable = VariableV2.getDecision(listeVariable);
-
-				// for(int i=0; i<listeBacktrack.size(); i++)
-				// affichetab(listeBacktrack.get(i));
-
-				if (contains(listeBacktrack, stateVariable)) {
-					System.out
-							.println("//////////////////////\nUNSATISFIABLE\n//////////////////////");
-					listeBacktrack.add(stateVariable);
-					for (int i = 0; i < listeBacktrack.size(); i++)
-						affichetab(listeBacktrack.get(i));
-					return null;
-				} else
-					listeBacktrack.add(stateVariable);
-	// /////////////////////////////////////////
-	*/
 				pick = false;
 
 			} else {
 
 				pick = true;
 			}
+			
+			//check the pattern -1,0,-1,0 (unsat)
+			if(VariableV2.backtracks.size()>5)
+			if(VariableV2.backtracks.get(VariableV2.backtracks.size()-1)==-1
+					&&VariableV2.backtracks.get(VariableV2.backtracks.size()-2)==0
+					&&VariableV2.backtracks.get(VariableV2.backtracks.size()-3)==-1
+					&&VariableV2.backtracks.get(VariableV2.backtracks.size()-4)==0
+					) 
+			{
+				System.out.println("UNSAT");
+				return null;
+			}
 
 		}
 
-		affiche(learnedCls);
+		//affiche(learnedCls);
 
+		VariableV2.afficheDecision(listeVariable);
+		System.out.println(VariableV2.backtracks);
+		
 		return null;
 
 	}
@@ -491,6 +521,13 @@ public class ConstructeurClauseV5 {
 	// //////////////////////////////
 
 	// true if elt is in tab
+	
+	/**
+	 * Check if tab contains elt
+	 * @param tab
+	 * @param elt
+	 * @return true if elt is in tab
+	 */
 	public boolean contains(Vector<int[]> tab, int[] elt) {
 		boolean found;
 		for (int i = 0; i < tab.size(); i++) {
@@ -508,6 +545,12 @@ public class ConstructeurClauseV5 {
 		return false;
 	}
 
+	/**
+	 * Check if elt is in tab
+	 * @param tab
+	 * @param elt
+	 * @return true if elt is in tab
+	 */
 	public boolean contains(int[] tab, int elt) {
 		for (int i = 0; i < tab.length; i++) {
 			if (tab[i] == elt)
@@ -517,6 +560,11 @@ public class ConstructeurClauseV5 {
 		return false;
 	}
 
+	/**
+	 * Check if the set of clause contains only 0 at each clause
+	 * @param tab
+	 * @return true if empty
+	 */
 	public static boolean isEmpty(int[][] tab) {
 		for (int i = 1; i < tab.length; i++) {
 			if (tab[i][0] != 0)
@@ -525,6 +573,12 @@ public class ConstructeurClauseV5 {
 		return true;
 	}
 
+	/**
+	 * Fuse 2 arrays
+	 * @param tab1 first array to fuse
+	 * @param tab2 second array to fuse
+	 * @return new array
+	 */
 	public static int[] fusion(int[] tab1, int[] tab2) {
 		int newSize = tab1.length + tab2.length;
 		int[] newTab = new int[newSize];
@@ -539,7 +593,12 @@ public class ConstructeurClauseV5 {
 
 	}
 
-	// fusion between clauses and literal
+	/**
+	 * fusion between clauses and literal
+	 * @param tab1 set of clause to fuse
+	 * @param literal to add to the set of Clause
+	 * @return
+	 */
 	public static int[][] fusion2(int[][] tab1, int literal) {
 		int newSize = tab1.length + 1;
 		int[][] newTab = new int[newSize][];
@@ -560,6 +619,12 @@ public class ConstructeurClauseV5 {
 
 	}
 
+	/**
+	 * Fuse together 2 set of clauses
+	 * @param tab1 first set of array to fuse
+	 * @param tab2 second set of array to fuse
+	 * @return new set of array after fusion
+	 */
 	public int[][] fusion(int[][] tab1, int[][] tab2) {
 		int[][] newTab = new int[tab1.length + tab2.length][];
 
@@ -578,6 +643,13 @@ public class ConstructeurClauseV5 {
 		System.out.println();
 	}
 
+	
+	/**
+	 * Add elt to tab
+	 * @param tab
+	 * @param elt
+	 * @return tab after adding elt
+	 */
 	public static int[] add(int[] tab, int elt) {
 		int[] newTab = new int[tab.length + 1];
 		for (int i = 0; i < tab.length; i++) {
@@ -622,19 +694,19 @@ public class ConstructeurClauseV5 {
 		// SATISFIABLE//////
 		// /////////////////
 
-		//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf20-01.cnf");
-		//ConstructeurClauseV5 c = new ConstructeurClauseV5("uf50-01.cnf");
-		// ConstructeurClauseV5 c = new ConstructeurClauseV5("queen.cnf");
-		 ConstructeurClauseV5 c = new ConstructeurClauseV5("flat150-1.cnf");
+		ConstructeurClauseV5 c = new ConstructeurClauseV5("./files/uf20-02.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("./files/uf50-02.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("./files/queen.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("./files/flat150-1.cnf");
 
 		// /////////////////
 		// UNSATISFIABLE////
 		// /////////////////
 
-		// ConstructeurClauseV5 c = new
-		// ConstructeurClauseV5("aim-50-1_6-no-2.cnf");
-		// ConstructeurClauseV5 c = new ConstructeurClauseV5("exemple2.cnf");
-		// ConstructeurClauseV5 c = new ConstructeurClauseV5("dubois20.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("./files/aim-50-1_6-no-2.cnf");
+		// 
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("./files/exemple2.cnf");
+		//ConstructeurClauseV5 c = new ConstructeurClauseV5("./files/dubois20.cnf");
 
 	}
 

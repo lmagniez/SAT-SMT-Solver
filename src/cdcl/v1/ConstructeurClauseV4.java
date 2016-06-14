@@ -6,6 +6,13 @@ import java.io.IOException;
 import java.util.Vector;
 
 
+/**
+ * CDCL version 1 
+ * use upgrade of DPLL version 3 implication graph
+ * Search for UIP
+ * @author loick
+ *
+ */
 public class ConstructeurClauseV4 {
 	
 	private int[][] clauses;
@@ -16,6 +23,10 @@ public class ConstructeurClauseV4 {
 	private Vector<Variable> listeBackTrack = new Vector<Variable>();
 	
 	
+	/**
+	 * create the clauses according to cnf file, and perform cdcl
+	 * @param nomFichier name of the cnf file to use
+	 */
 	public ConstructeurClauseV4(String nomFichier)
 	{
 		BufferedReader br = null;
@@ -118,7 +129,11 @@ public class ConstructeurClauseV4 {
 		
 		
 	}
-	
+	/**
+	 * selection sort
+	 * @param data
+	 * @return data sorted
+	 */
 	public int[] selectionSort(int[] data){
 		  int lenD = data.length;
 		  int j = 0;
@@ -137,6 +152,13 @@ public class ConstructeurClauseV4 {
 		  return data;
 		}
 	
+	/**
+	 * while there's unit clause, perform unit propagation
+	 * @param cls the set of clause 
+	 * @param originalCls the same set of clause (original one, do not modify)
+	 * @param v list of Variable
+	 * @return true if ok, false if conflict
+	 */
 	public static boolean unitResolution(int[][] cls, int[][] originalCls, Variable[] v)
 	{
 		
@@ -346,11 +368,14 @@ public class ConstructeurClauseV4 {
 	
 	
 	
-	//delete the entire clauses containing literal (replace by 0) 
-	//delete -literal from all clauses 
-	//may cause empty clause when delete -literal from clause !(return null)
-	
-	//DON'T FORGET TO DELETE THE LITERAL AFTER THE PROPAGATION (DONE)
+	/**
+	 * delete the entire clauses containing literal (replace by 0) \n
+	 * delete -literal from all clauses \n
+	 * may cause empty clause when delete -literal from clause !(return null) \n
+	 * @param literal to propagate
+	 * @param cls set of clause
+	 * @return set of clause after propagation
+	 */
 	
 	public static int[][] unitPropagation(int literal, int[][] cls)
 	{	
@@ -520,7 +545,13 @@ public class ConstructeurClauseV4 {
 	
 	
 	
-	
+	/**
+	 * CDCL algorithm
+	 * @param cls set of clause
+	 * @param nbVariable number of variable
+	 * @param listeVariable list of Variable
+	 * @return interpretation if it founds one, null if unsat
+	 */
 	public int[] CDCL(int[][] cls, int nbVariable, Variable[] listeVariable)
 	{
 		
@@ -683,61 +714,6 @@ public class ConstructeurClauseV4 {
 				Variable.afficheDecision(listeVariable);
 				
 				
-				
-				
-				///////////////////////////
-				
-				/*
-				
-				Variable vRes=null;
-				
-				//search for the last max
-				for(int i=0; i<listeVariable.length; i++)
-				{
-					if(listeVariable[i].getValue()==1
-							&&listeVariable[i].getCut()==0)
-					{	
-						vRes=listeVariable[i];
-						Variable.actualLevel=vRes.getDecisionLevel();
-					}
-						
-				}
-				
-				Variable.restartVariable(listeVariable, Variable.actualLevel);
-				
-				System.out.println("vRes");
-				Variable.afficher(vRes);
-				
-				
-				for(int i=0; i<listeVariable.length; i++)
-				{
-					if(listeVariable[i].getDecisionLevel()==Variable.actualLevel
-							&&listeVariable[i].getCut()==0)
-						vRes=listeVariable[i];
-				}
-				
-				
-				//flip the atom
-				if(vRes.getValue()==1)
-				{
-					System.out.println("flip!!");
-					vRes.setValue(0);
-					pick=false;
-					System.out.println("vRes");
-					Variable.afficher(vRes);
-					
-				}
-				
-				
-				
-				else pick=true;
-				
-				*/
-				///////////////////////////
-				
-				
-				
-				
 				//flip the atom
 				System.out.println("flip the atom");
 				if(vRes.getValue()==-1) return null;
@@ -801,8 +777,13 @@ public class ConstructeurClauseV4 {
 	}
 	
 	
-	//check if every clauses has a size of 2 or less ("literal" "0")
-	//also check that there are no literal and -literal in the expression
+	/**
+	 * check if every clauses has a size of 2 or less ("literal" "0")\n
+	 * also check that there are no literal and -literal in the expression
+	 * 
+	 * @param cls
+	 * @return true is satisfiable
+	 */
 	public boolean isSatisfiable(int[][] cls)
 	{
 		for(int i=0; i<cls.length;i++)

@@ -1,6 +1,10 @@
 package dpll.v3;
 
-
+/**
+ * Graph, contains Node
+ * @author loick
+ *
+ */
 public class Graph {
 
 	private Node[] nodes;
@@ -12,6 +16,10 @@ public class Graph {
 		this.actualLvl=0;
 	}
 	
+	/**
+	 * add a node to the Graph
+	 * @param n
+	 */
 	public void addNode(Node n)
 	{
 		//peut pas ajouter level plus bas
@@ -35,6 +43,13 @@ public class Graph {
 	//remove until reach assertionLevel
 	//return i = indicator for interpretation
 	//negate at the end
+	
+	/**
+	 * remove until reach assertionLevel
+	 * negate at the end
+	 * @param assertionLevel
+	 * @return return i = indicator for interpretation
+	 */
 	public int removeNode(int assertionLevel)
 	{
 		System.out.println("assertionLevel: "+assertionLevel);
@@ -52,7 +67,7 @@ public class Graph {
 		int i=0;
 		
 		//erase after asserting level
-		while(nodes[i].getLevel()<=assertionLevel||i==nodes.length-1)
+		while(nodes[i].getLevel()<assertionLevel||i==nodes.length-1)
 		{
 			i++;
 		}

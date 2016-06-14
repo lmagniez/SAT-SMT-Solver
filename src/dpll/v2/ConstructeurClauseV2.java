@@ -5,6 +5,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
+/**
+ * Second version of DPLL
+ * @author loick
+ *
+ */
 
 public class ConstructeurClauseV2 {
 	
@@ -13,7 +18,10 @@ public class ConstructeurClauseV2 {
 	private int nbVariable;
 	private Vector<int[]> solutions = new Vector<int[]>();
 	
-	
+	/**
+	 * create the clauses according to cnf file, and perform cdcl
+	 * @param nomFichier name of the cnf file to use
+	 */
 	public ConstructeurClauseV2(String nomFichier)
 	{
 		BufferedReader br = null;
@@ -80,7 +88,6 @@ public class ConstructeurClauseV2 {
 		//affiche(clauses);
 		System.out.println(clauses.length);
 		
-		int[] partialI = createPartialInterpretation(clauses);
 		//System.out.println("result: "+DPLL(clauses, partialI, 0));
 		int[] res = DPLL(clauses);
 		
@@ -102,7 +109,11 @@ public class ConstructeurClauseV2 {
 		
 	}
 	
-	
+	/***
+	 * while there's unit clause, perform unit propagation
+	 * @param cls set of clause
+	 * @return array with [0][0]-> interpretation, [1]->clauses
+	 */
 	public static int[][][] unitResolution(int[][] cls)
 	{
 		
@@ -152,11 +163,14 @@ public class ConstructeurClauseV2 {
 	
 	
 	
-	//delete the entire clauses containing literal (replace by 0) 
-	//delete -literal from all clauses 
-	//may cause empty clause when delete -literal from clause !(return null)
-	
-	//DON'T FORGET TO DELETE THE LITERAL AFTER THE PROPAGATION (DONE)
+	/**
+	 * delete the entire clauses containing literal (replace by 0) \n
+	 * delete -literal from all clauses \n
+	 * may cause empty clause when delete -literal from clause !(return null) \n
+	 * @param literal to propagate
+	 * @param cls set of clause
+	 * @return set of clause after propagation
+	 */
 	
 	public static int[][] unitPropagation(int literal, int[][] cls)
 	{	
@@ -260,7 +274,12 @@ public class ConstructeurClauseV2 {
 		
 	}
 	
-	//fusion between clauses and literal
+	/**
+	 * fusion between clauses and literal
+	 * @param tab1
+	 * @param literal
+	 * @return
+	 */
 		public static int[][] fusion2(int[][] tab1, int literal)
 		{
 			int newSize=tab1.length+1;
@@ -286,11 +305,11 @@ public class ConstructeurClauseV2 {
 		}
 	
 	
-	//true -> satisfiable
-	//false -> unsatisfiable
-	
-	//partialInterpretation -> the variable we choosed (T/F) Empty at first
-	
+		/**
+		 * execute DPLL algorithme
+		 * @param cls set of clause
+		 * @return interpretation if satisfiable, null if unsat
+		 */
 	public int[] DPLL(int[][] cls)
 	{
 		
@@ -350,46 +369,8 @@ public class ConstructeurClauseV2 {
 		
 	}
 	
-	//check if every clauses has a size of 2 or less ("literal" "0")
-	//also check that there are no literal and -literal in the expression
-	public boolean isSatisfiable(int[][] cls)
-	{
-		for(int i=0; i<cls.length;i++)
-		{
-			if(cls[i].length>2)
-			{
-				return false;
-			}
-			
-		}
-		
-		//check if no litteral and -litteral
-		//from here, we're sure there is at most 1 literal in the clauses
-		for(int i=0; i<cls.length;i++)
-		{
-			for(int j=i;j<cls[i].length;j++)
-			{
-				if(cls[i][0]==-cls[j][0])
-					return false;
-			}
-		}
-		
-		return true;
-	}
 	
-	//create an array with only 0 in it
-	public int[] createPartialInterpretation(int[][] cls)
-	{
-		int nbVar=cls[0][0];
-		int[] partialI=new int[nbVar];
-		
-		for(int i=0;i<nbVar; i++)
-		{
-			partialI[i]=0;
-		}
-		
-		return partialI;
-	}
+
 	
 	
 	public void affiche()

@@ -9,7 +9,8 @@ import dpll.v1.ConstructeurClause;
 public class VariableV2 {
 
 	public static int actualLevel=0;
-	public static int actualDecision=0;//number of variable set
+	public static int actualDecision=-1;//number of variable set
+	public static Vector<Integer> backtracks = new Vector<Integer>();
 	
 	private int variable;
 	private int value; //0: false, 1:true, -1:not assigned
@@ -28,6 +29,14 @@ public class VariableV2 {
 		antecedants=null;
 	}
 	
+	/**
+	 * Modify the assignment of the Variable
+	 * @param value
+	 * @param decisionLevel
+	 * @param cut
+	 * @param w
+	 * @param antecedants
+	 */
 	public void addToGraph(int value, int decisionLevel, int cut, int w, VariableV2[] antecedants)
 	{
 		this.value=value;
@@ -37,6 +46,11 @@ public class VariableV2 {
 		this.antecedants=antecedants;
 	}
 	
+	/**
+	 * Update the variable actualDecision according to list of Variable v \n
+	 * actualDecision: actual level of decision
+	 * @param v
+	 */
 	public static void MAJActualDecision(VariableV2[] v)
 	{
 		int cpt=0;
@@ -48,6 +62,10 @@ public class VariableV2 {
 		actualDecision=cpt;
 	}
 	
+	/**
+	 * printing function for testing
+	 * @param v
+	 */
 	public static void afficheDecision(VariableV2[] v)
 	{
 		
@@ -64,6 +82,11 @@ public class VariableV2 {
 		System.out.println();
 	}
 	
+	/**
+	 * get the decision for the list of Variable (value)
+	 * @param v
+	 * @return
+	 */
 	public static int[] getDecision(VariableV2[] v)
 	{
 		int[] decision= new int[v.length];
@@ -74,6 +97,12 @@ public class VariableV2 {
 		return decision;
 	}
 	
+	/**
+	 * Find a variable in a list of Variable according to its name
+	 * @param variable variable name
+	 * @param v list of Variable
+	 * @return Variable if found, else null
+	 */
 	public static VariableV2 find(int variable, VariableV2[] v)
 	{
 		for(int i=0; i<v.length; i++)
@@ -111,7 +140,14 @@ public class VariableV2 {
 		
 	}
 	
-	//put to 0 every Variable up to the decision level
+	
+	/**
+	 * Backtrack function. Cancel assignment to every Variable up to the decision level (up to cut=0)
+	 * @param v list of variable
+	 * @param decisionLevel decisionLevel where to backtrack
+	 * @param liste stack of variable
+	 * @return
+	 */
 	public static int restartVariable(VariableV2[] v, int decisionLevel, Vector<VariableV2> liste)
 	{
 		while(!liste.isEmpty()&&liste.get(liste.size()-1).getDecisionLevel()!=decisionLevel)
@@ -138,7 +174,10 @@ public class VariableV2 {
 		return cpt;
 	}
 
-	
+	/**
+	 * Search for an UIP 
+	 * @param liste stack of Variable
+	 */
 	public static void searchUIP(Vector<VariableV2> liste)
 	{
 		//get the position of the last decision
@@ -164,7 +203,13 @@ public class VariableV2 {
 		return;
 		
 	}
-	
+	/**
+	 * Generate a conflict clause according to the graph (need a conflict)
+	 * @param cls set a clause
+	 * @param v list of Variable
+	 * @param liste stack of Variable
+	 * @return conflict clause
+	 */
 	public static int[] generateConflictClause (int[][] cls, VariableV2[] v, Vector<VariableV2> liste)
 	{
 	
@@ -173,7 +218,7 @@ public class VariableV2 {
 		//GENERATION DE LA CLAUSE//
 		///////////////////////////
 		
-		searchUIP(liste);
+		//searchUIP(liste);
 		
 		System.out.println("taille "+ liste.size());
 		
@@ -212,6 +257,15 @@ public class VariableV2 {
 	}
 	
 	//search where to backtrack and which Variable to add
+	
+	/**
+	 * Analyse Conflict Clause\n
+	 * Search for a level k to backtrack, and which Variable to keep
+	 * @param conflictClause conflict clause
+	 * @param size 
+	 * @param v list of Variable
+	 * @param liste stack of Variable
+	 */
 	public static void conflictAnalysis (int[] conflictClause, int size, VariableV2[] v, Vector<VariableV2> liste) 
 	{
 		System.out.println("clause");
@@ -220,6 +274,7 @@ public class VariableV2 {
 		int d=VariableV2.actualLevel;
 		
 		int k=-1;
+		int min=Integer.MAX_VALUE;
 		VariableV2 v0=null;
 		
 		//search for v0 (decisionLevel d, cut=0)		
@@ -230,6 +285,12 @@ public class VariableV2 {
 			VariableV2 tmp= VariableV2.find(Math.abs(conflictClause[i]), v);
 			VariableV2.afficher(tmp);
 			System.out.println("d="+d);
+			
+			//test
+			if(min>tmp.decisionLevel)
+				min=tmp.decisionLevel;
+			///
+			
 			if(tmp.decisionLevel==d)
 				v0=tmp;
 			if(tmp.decisionLevel<d)
@@ -237,14 +298,23 @@ public class VariableV2 {
 				if(k<tmp.decisionLevel)
 					k=tmp.decisionLevel;
 			}
+			
+			//test
+			if(k==-1)
+				k=min-1;
+			
 		}
 		
 		
 		
 		//backtrack to k
 		System.out.println("backtrack to "+k);
+		backtracks.add(k);
 		VariableV2.actualLevel=k;
 		restartVariable(v, k, ConstructeurClauseV5.decisions);
+		
+		//VariableV2.afficher(v);
+		
 		if(VariableV2.actualLevel==-1)VariableV2.actualLevel=1;
 		
 		
@@ -265,9 +335,11 @@ public class VariableV2 {
 		
 		System.out.println("conflict clause après résolution");
 		if(cls.length!=1)ConstructeurClauseV5.affichetab(cls[1]);
-		System.out.println(Variable.actualLevel);
+		System.out.println("actualLevel:"+Variable.actualLevel);
 		
 		VariableV2.MAJActualDecision(v);
+		
+		
 		
 		
 		
@@ -281,6 +353,7 @@ public class VariableV2 {
 		v0.cut=0;
 		v0.w=size-1;//cls learned
 		liste.addElement(v0);
+		
 		return;
 		
 	}
@@ -298,7 +371,12 @@ public class VariableV2 {
 		return false;
 	}
 	
-	
+	/**
+	 * Fuse together 2 cls to make one (delete l and -l, and double l)
+	 * @param cls1
+	 * @param cls2
+	 * @return new clause 
+	 */
 	public static int[] fuse(int[] cls1, int[] cls2)
 	{
 		
@@ -315,6 +393,7 @@ public class VariableV2 {
 			System.out.print(cls2[i]+ " ");
 		}
 		System.out.println();
+		
 		
 		for(int i=0; i<cls1.length; i++)
 		{
@@ -343,6 +422,11 @@ public class VariableV2 {
 		return clause;
 	}
 	
+	/**
+	 * Check if there's 2 time the same literal in the clause, delete it if found (only one needed)
+	 * @param tab clause
+	 * @return new clause
+	 */
 	public static int[] deleteDoublon(int[] tab)
 	{
 		boolean found=false;
@@ -384,6 +468,11 @@ public class VariableV2 {
 		
 	}
 	
+	/**
+	 * Check if there's l and -l, if found, delete both
+	 * @param tab clause
+	 * @return new clause
+	 */
 	public static int[] deleteDoublon2(int[] tab)
 	{
 		boolean found=false;
@@ -427,11 +516,16 @@ public class VariableV2 {
 		
 	}
 	
-	
+	/**
+	 * delete j from tab
+	 * @param tab
+	 * @param j
+	 * @return new tab
+	 */
 	public static int[] deleteFromTab(int[] tab, int j)
 	{
-		System.out.println("delete "+j);
-		ConstructeurClauseV5.affichetab(tab);
+		//System.out.println("delete "+j);
+		//ConstructeurClauseV5.affichetab(tab);
 		
 		int[] newTab= new int[tab.length-1];
 		int cpt=0;

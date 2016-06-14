@@ -1,5 +1,11 @@
 package smt.v1;
 
+/**
+ * Variable
+ * @author loick
+ *
+ */
+
 public class Variable extends Element{
 
 	protected Integer value;
@@ -20,7 +26,7 @@ public class Variable extends Element{
 	public String affiche()
 	{
 		return "Variable [value=" + value + ", name=" + name + ", type=" + type
-		+ "]";
+				+ " relations="+ relations + "]";
 	}
 	
 	public String printTypes()

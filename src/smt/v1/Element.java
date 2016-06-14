@@ -1,14 +1,25 @@
 package smt.v1;
 
-public class Element implements Cloneable{
+import java.util.Vector;
 
-	protected String name;
-	protected String type;
+/**
+ * Variable or Function \n
+ * Contains name and type
+ * @author loick
+ *
+ */
+
+public abstract class Element implements Cloneable{
+
+	protected String name; //name
+	protected String type; //type of variable, or type of return for function
+	protected Vector <Relation> relations; //relations linked to this Element (used for resolution)
 	
 	public Element(String name, String type)
 	{
 		this.name=name;
 		this.type=type.toLowerCase();
+		this.relations = new Vector<Relation>();
 	}
 
 	public String getName() {
@@ -34,7 +45,7 @@ public class Element implements Cloneable{
 	
 	public String affiche()
 	{
-		return "";
+		return "Element [name=" + name + ", type=" + type + "]";
 	}
 	public String printTypes()
 	{

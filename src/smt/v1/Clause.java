@@ -4,7 +4,7 @@ import java.util.Vector;
 
 /**
  * set of relation separated by OR 
- *
+ * @author loick
  */
 
 public class Clause {

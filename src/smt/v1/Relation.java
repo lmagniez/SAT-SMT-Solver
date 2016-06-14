@@ -4,18 +4,19 @@ import java.util.Vector;
 
 
 /**
+ * 2 elements 
  * relation values: 
- * -2  -1  0  1   2    10
- * <=   <  =  >   =>   !=
+ * -3  -2  -1    1   2    3
+ * !=   <=   <    >   =>   =
  */
 
 public class Relation {
 
-	protected Element e1;
-	protected Element e2;
-	protected int relation; 
-	protected int id;
-	protected boolean usedForClause;
+	protected Element e1;//first element
+	protected Element e2;//second element
+	protected int relation;//type of relation
+	protected int id;//id of the relation
+	protected boolean usedForClause;//used for a clause (if not, it will become a clause when checking satisfiability)
 	
 	public static int ID=1;
 	
@@ -26,7 +27,7 @@ public class Relation {
 		this.relation=relation;
 		this.usedForClause=false;
 		
-		if(relation==-2||relation==0||relation==2)id=ID;
+		if(relation==2||relation==3||relation==1)id=ID;
 		else id=-ID;
 		ID++;
 	}
@@ -51,12 +52,12 @@ public class Relation {
 	public String toString() {
 		
 		String sign = "";
-		if(relation==0)	sign="=";
+		if(relation==3)	sign="=";
 		else if(relation==1) sign=">";
 		else if(relation==2) sign=">=";
 		else if(relation==-1) sign="<";
 		else if(relation==-2) sign="<=";
-		else if(relation==10) sign="!=";
+		else if(relation==-3) sign="!=";
 			
 			
 		return e1.toString() + sign + e2.toString();

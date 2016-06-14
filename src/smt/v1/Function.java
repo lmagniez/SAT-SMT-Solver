@@ -3,10 +3,17 @@ package smt.v1;
 import java.util.Arrays;
 import java.util.Vector;
 
+/**
+ * Function (contains arguments with a defined type)
+ * may contains nested function
+ * @author loick
+ *
+ */
+
 public class Function extends Element implements Cloneable{
 
-	Vector<Element> arguments;
-	Vector<String> argumentsTypes;
+	Vector<Element> arguments; //Element of the function (Variable or Function)
+	Vector<String> argumentsTypes; //type of argument (has to correspond with argument)
 	
 	public Function(Vector<String> v, String returnT, String name)
 
@@ -25,7 +32,7 @@ public class Function extends Element implements Cloneable{
 	public String affiche() {
 		return "Function [arguments=" + arguments + ", name=" + name
 				+ ", argumentsTypes=" + argumentsTypes + ", returnType="
-				+ type + "]";
+				+ type + " relations="+ relations + "]";
 		
 	}
 
@@ -72,11 +79,7 @@ public class Function extends Element implements Cloneable{
 
 
 
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		// TODO Auto-generated method stub
-		return super.clone();
-	}
+
 
 	
 	

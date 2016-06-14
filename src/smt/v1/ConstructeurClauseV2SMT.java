@@ -5,104 +5,34 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
+/**
+ * Modification of DPLL v2 (the safest version of SAT solver implemented)
+ * Used for solving SMT problem
+ * @author loick
+ *
+ */
 
-public class ConstructeurClauseV2 {
+public class ConstructeurClauseV2SMT {
 	
 	private int[][] clauses;
 	private int nbClause;
 	private int nbVariable;
 	private Vector<int[]> solutions = new Vector<int[]>();
+	protected int[] res;
 	
 	
-	public ConstructeurClauseV2(String nomFichier)
+	
+	/**
+	 * execute DPLL algorithm and store solution
+	 * @param clauses set of clause
+	 */
+	public ConstructeurClauseV2SMT(int[][] clauses)
 	{
-		BufferedReader br = null;
 		
-		try {
-
-			String sCurrentLine;
-			int currentClause=0;
-
-			br = new BufferedReader(new FileReader(nomFichier));
-
-			while ((sCurrentLine = br.readLine()) != null) {
-				
-				//remove extra spaces
-				sCurrentLine=sCurrentLine.trim();
-				while(sCurrentLine.indexOf("  ") >= 0)
-				{
-					sCurrentLine= sCurrentLine.replaceAll("  ", " ");
-				}
-				
-				String[] line = sCurrentLine.split(" ");
-				
-				//comment
-				if("c".equals(line[0]))
-				{
-					
-				}
-				//initialisation
-				else if("p".equals(line[0]))
-				{
-					nbVariable=Integer.parseInt(line[2]);
-					nbClause=Integer.parseInt(line[3]);
-					
-					//the first line is the nb of variables
-					clauses=new int[nbClause+1][];
-					int[] nbV= {nbVariable};
-					clauses[0]=nbV;
-					currentClause++;
-				}
-				//clause
-				else
-				{
-					clauses[currentClause]=new int[line.length];
-					for(int i=0;i<line.length;i++)
-					{
-						clauses[currentClause][i]=Integer.parseInt(line[i]);
-				
-					}
-					currentClause++;
-				}
-				
-			}			
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (br != null)br.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
+			System.out.println("clauses!");
+			this.affiche(clauses);
 		
-		
-		int[] partialI = createPartialInterpretation(clauses);
-		//System.out.println("result: "+DPLL(clauses, partialI, 0));
-		int[] res = DPLL(clauses);
-		
-		if(res==null)
-			System.out.println("UNSATISFIABLE");
-		else
-		{
-			System.out.println("SATISFIABLE");
-			
-			res=this.selectionSort(res);
-			
-			System.out.println("\n\n\nRESULTAT (taille:"+res.length+")");
-			for(int i=0; i<res.length; i++)
-				System.out.print(res[i]+" ");
-			System.out.println("");
-		}
-		
-		
-		
-	}
-	
-	public ConstructeurClauseV2(int[][] clauses)
-	{
-			
+			this.res=null;
 			int[] partialI = createPartialInterpretation(clauses);
 			//System.out.println("result: "+DPLL(clauses, partialI, 0));
 			int[] res = DPLL(clauses);
@@ -119,10 +49,16 @@ public class ConstructeurClauseV2 {
 				for(int i=0; i<res.length; i++)
 					System.out.print(res[i]+" ");
 				System.out.println("");
+				
+				this.res=res;
 			}
 	}
 	
-	
+	/***
+	 * while there's unit clause, perform unit propagation
+	 * @param cls set of clause
+	 * @return array with [0][0]-> interpretation, [1]->clauses
+	 */
 	public static int[][][] unitResolution(int[][] cls)
 	{
 		
@@ -152,7 +88,7 @@ public class ConstructeurClauseV2 {
 					nbInterpretation++;
 					
 					//unitPropagation	
-					cls=ConstructeurClauseV2.unitPropagation(cls[i][0],cls);
+					cls=ConstructeurClauseV2SMT.unitPropagation(cls[i][0],cls);
 					if(cls==null) return null; //if there is empty clause/conflict
 					found=true;
 					break;
@@ -172,11 +108,14 @@ public class ConstructeurClauseV2 {
 	
 	
 	
-	//delete the entire clauses containing literal (replace by 0) 
-	//delete -literal from all clauses 
-	//may cause empty clause when delete -literal from clause !(return null)
-	
-	//DON'T FORGET TO DELETE THE LITERAL AFTER THE PROPAGATION (DONE)
+	/**
+	 * delete the entire clauses containing literal (replace by 0) \n
+	 * delete -literal from all clauses \n
+	 * may cause empty clause when delete -literal from clause !(return null) \n
+	 * @param literal to propagate
+	 * @param cls set of clause
+	 * @return set of clause after propagation
+	 */
 	
 	public static int[][] unitPropagation(int literal, int[][] cls)
 	{	
@@ -273,7 +212,13 @@ public class ConstructeurClauseV2 {
 		
 	}
 	
-	//fusion between clauses and literal
+	/**
+	 * fusion between clauses and literal
+	 * @param tab1
+	 * @param literal
+	 * @return
+	 */
+	
 	public static int[][] fusion2(int[][] tab1, int literal)
 		{
 			int newSize=tab1.length+1;
@@ -299,11 +244,11 @@ public class ConstructeurClauseV2 {
 		}
 	
 	
-	//true -> satisfiable
-	//false -> unsatisfiable
-	
-	//partialInterpretation -> the variable we choosed (T/F) Empty at first
-	
+	/**
+	 * execute DPLL algorithme
+	 * @param cls set of clause
+	 * @return interpretation if satisfiable, null if unsat
+	 */
 	public int[] DPLL(int[][] cls)
 	{
 		
@@ -321,11 +266,6 @@ public class ConstructeurClauseV2 {
 		int[][] newCNF = result[1];
 		if(isEmpty(newCNF))
 		{
-			/*
-			for(int i=0;i<I.length;i++)
-				System.out.println(I[i]+" ");
-			System.out.println();
-			*/
 			return I;
 		}
 		//choose a literal p 
@@ -362,34 +302,14 @@ public class ConstructeurClauseV2 {
 		
 	}
 	
-	//check if every clauses has a size of 2 or less ("literal" "0")
-	//also check that there are no literal and -literal in the expression
-	public boolean isSatisfiable(int[][] cls)
-	{
-		for(int i=0; i<cls.length;i++)
-		{
-			if(cls[i].length>2)
-			{
-				return false;
-			}
-			
-		}
-		
-		//check if no litteral and -litteral
-		//from here, we're sure there is at most 1 literal in the clauses
-		for(int i=0; i<cls.length;i++)
-		{
-			for(int j=i;j<cls[i].length;j++)
-			{
-				if(cls[i][0]==-cls[j][0])
-					return false;
-			}
-		}
-		
-		return true;
-	}
 	
-	//create an array with only 0 in it
+	
+
+	/**
+	 * create an array with only 0, having the size equal to number of clause
+	 * @param cls
+	 * @return interpretation
+	 */
 	public int[] createPartialInterpretation(int[][] cls)
 	{
 		int nbVar=cls[0][0];
@@ -450,7 +370,7 @@ public class ConstructeurClauseV2 {
 	
 	public static void main(String[] args) {
 		//ConstructeurClauseV2 c = new ConstructeurClauseV2("exemple6.cnf");
-		ConstructeurClauseV2 c = new ConstructeurClauseV2("uf50-01.cnf");
+		//ConstructeurClauseV2SMT c = new ConstructeurClauseV2SMT("uf50-01.cnf");
 		//ConstructeurClauseV2 c = new ConstructeurClauseV2("aim-50-1_6-no-1.cnf");
 		
 	}

@@ -7,6 +7,11 @@ import java.util.Vector;
 
 import dpll.v2.ConstructeurClauseV2;
 
+/**
+ * First version of DPLL
+ * @author loick
+ *
+ */
 
 public class ConstructeurClause {
 	
@@ -15,7 +20,10 @@ public class ConstructeurClause {
 	private int nbVariable;
 	private Vector<int[]> solutions = new Vector<int[]>();
 	
-	
+	/**
+	 * create the clauses according to cnf file, and perform cdcl
+	 * @param nomFichier name of the cnf file to use
+	 */
 	public ConstructeurClause(String nomFichier)
 	{
 		BufferedReader br = null;
@@ -101,12 +109,14 @@ public class ConstructeurClause {
 	}
 	
 	
-	//delete the entire clauses containing literal (replace by 0) 
-	//delete -literal from all clauses 
-	//may cause empty clause when delete -literal from clause !(return null)
-	
-	//DON'T FORGET TO DELETE THE LITERAL AFTER THE PROPAGATION (DONE)
-	
+	/**
+	 * delete the entire clauses containing literal (replace by 0) \n
+	 * delete -literal from all clauses \n
+	 * may cause empty clause when delete -literal from clause !(return null) \n
+	 * @param literal to propagate
+	 * @param cls set of clause
+	 * @return set of clause after propagation
+	 */
 	public static int[][] unitPropagation(int literal, int[][] cls)
 	{	
 		//System.out.println("\nunitPropagation: literal: "+literal);
@@ -161,9 +171,6 @@ public class ConstructeurClause {
 			
 		}
 		
-		//System.out.println("cls après traitement");	
-		//affiche(cls);
-		//System.out.println("*********\n\n");
 		
 		return clausesTMP;
 		
@@ -173,7 +180,11 @@ public class ConstructeurClause {
 	
 	//CHECK IF REMOVING PURE LITERAL MAY CAUSE EMPTY CLAUSE
 	
-	//if find any literal only used in one polarity, we may remove it from the clause
+	/**
+	 * if find any literal only used in one polarity, we may remove it from the clause
+	 * @param cls
+	 * @return new clause
+	 */
 	public int[][] pureLiteral(int[][] cls)
 	{
 		int[] literalList= new int[cls[0][0]];//get the nb of variable
@@ -267,10 +278,11 @@ public class ConstructeurClause {
 	
 	
 	
-	//true -> satisfiable
-	//false -> unsatisfiable
-	
-	//partialInterpretation -> the variable we choosed (T/F) Empty at first
+	/**
+	 * execute DPLL algorithme
+	 * @param cls set of clause
+	 * @return true if satisfiable, false if unsat
+	 */
 	
 	public boolean DPLL(int[][] cls, int[] partialInterpretation, int nbInterpretation)
 	{
@@ -370,8 +382,13 @@ public class ConstructeurClause {
 		
 	}
 	
-	//check if every clauses has a size of 2 or less ("literal" "0")
-	//also check that there are no literal and -literal in the expression
+	/**
+	 * check if every clauses has a size of 2 or less ("literal" "0")\n
+	 * also check that there are no literal and -literal in the expression
+	 * 
+	 * @param cls
+	 * @return true is satisfiable
+	 */
 	public boolean isSatisfiable(int[][] cls)
 	{
 		for(int i=0; i<cls.length;i++)
